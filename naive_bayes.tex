@@ -139,6 +139,30 @@ P(x_1, x_2, \ldots, x_n \mid y = k) = \prod_{j=1}^n P(x_j \mid y = k)
 \end{itemize}
 \end{frame}
 
+\begin{frame}{Bernoulli Naive Bayes}
+    \begin{itemize}
+        \item For binary features (e.g., word presence/absence):
+        \[
+        P(x_j = 1 \mid y = k) = p_{kj}
+        \]
+        \pause
+        \item MLE with smoothing:
+        \[
+        \hat{p}_{kj} = \frac{\text{count}(x_j = 1, y = k) + \alpha}{\text{count}(y = k) + 2\alpha}
+        \]
+        \pause
+        \item Probability mass function:
+        \[
+        P(x_j \mid y = k) = \hat{p}_{kj}^{x_j} (1 - \hat{p}_{kj})^{1-x_j}
+        \]
+        \pause
+        \item In log-space:
+        \[
+        \log P(x_j \mid y = k) = x_j \log \hat{p}_{kj} + (1-x_j) \log(1 - \hat{p}_{kj})
+        \]
+    \end{itemize}
+    \end{frame}
+
 \begin{frame}{Gaussian Naive Bayes}
 \begin{itemize}
     \item For continuous features, assume:
@@ -199,29 +223,6 @@ P(x_1, x_2, \ldots, x_n \mid y = k) = \prod_{j=1}^n P(x_j \mid y = k)
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Bernoulli Naive Bayes}
-\begin{itemize}
-    \item For binary features (e.g., word presence/absence):
-    \[
-    P(x_j = 1 \mid y = k) = p_{kj}
-    \]
-    \pause
-    \item MLE with smoothing:
-    \[
-    \hat{p}_{kj} = \frac{\text{count}(x_j = 1, y = k) + \alpha}{\text{count}(y = k) + 2\alpha}
-    \]
-    \pause
-    \item Probability mass function:
-    \[
-    P(x_j \mid y = k) = \hat{p}_{kj}^{x_j} (1 - \hat{p}_{kj})^{1-x_j}
-    \]
-    \pause
-    \item In log-space:
-    \[
-    \log P(x_j \mid y = k) = x_j \log \hat{p}_{kj} + (1-x_j) \log(1 - \hat{p}_{kj})
-    \]
-\end{itemize}
-\end{frame}
 
 \subsection{Worked Examples}
 
