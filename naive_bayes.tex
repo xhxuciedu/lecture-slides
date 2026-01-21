@@ -297,10 +297,10 @@ $\hat{y} = 1$ (Child) \checkmark
     \pause
     \item For Spam ($y=1$):
     \begin{itemize}
-        \item "buy": count=3, $\hat{\theta}_{1,\text{buy}} = (3+1)/(6+4) = 0.4$
-        \item "cheap": count=2, $\hat{\theta}_{1,\text{cheap}} = (2+1)/(6+4) = 0.3$
-        \item "meeting": count=0, $\hat{\theta}_{1,\text{meeting}} = (0+1)/(6+4) = 0.1$
-        \item "tomorrow": count=0, $\hat{\theta}_{1,\text{tomorrow}} = (0+1)/(6+4) = 0.1$
+        \item "buy": count=3, $\hat{\theta}_{1,\text{buy}} = (3+1)/(5+4) = 4/9 \approx 0.444$
+        \item "cheap": count=2, $\hat{\theta}_{1,\text{cheap}} = (2+1)/(5+4) = 3/9 = 0.333$
+        \item "meeting": count=0, $\hat{\theta}_{1,\text{meeting}} = (0+1)/(5+4) = 1/9 \approx 0.111$
+        \item "tomorrow": count=0, $\hat{\theta}_{1,\text{tomorrow}} = (0+1)/(5+4) = 1/9 \approx 0.111$
     \end{itemize}
 \end{itemize}
 \end{frame}
@@ -308,18 +308,18 @@ $\hat{y} = 1$ (Child) \checkmark
 \begin{frame}{Example 2: Multinomial NB (continued)}
 \textbf{For Ham ($y=2$):}
 \begin{itemize}
-    \item "buy": count=0, $\hat{\theta}_{2,\text{buy}} = (0+1)/(6+4) = 0.1$
-    \item "cheap": count=0, $\hat{\theta}_{2,\text{cheap}} = (0+1)/(6+4) = 0.1$
-    \item "meeting": count=3, $\hat{\theta}_{2,\text{meeting}} = (3+1)/(6+4) = 0.4$
-    \item "tomorrow": count=2, $\hat{\theta}_{2,\text{tomorrow}} = (2+1)/(6+4) = 0.3$
+    \item "buy": count=0, $\hat{\theta}_{2,\text{buy}} = (0+1)/(5+4) = 1/9 \approx 0.111$
+    \item "cheap": count=0, $\hat{\theta}_{2,\text{cheap}} = (0+1)/(5+4) = 1/9 \approx 0.111$
+    \item "meeting": count=3, $\hat{\theta}_{2,\text{meeting}} = (3+1)/(5+4) = 4/9 \approx 0.444$
+    \item "tomorrow": count=2, $\hat{\theta}_{2,\text{tomorrow}} = (2+1)/(5+4) = 3/9 = 0.333$
 \end{itemize}
 \pause
 \textbf{Predict:} "buy cheap meeting"
 \begin{align*}
-\text{Score}_1 &= \log 0.5 + \log 0.4 + \log 0.3 + \log 0.1 \\
-             &= -0.693 - 0.916 - 1.204 - 2.303 = -5.116 \\
-\text{Score}_2 &= \log 0.5 + \log 0.1 + \log 0.1 + \log 0.4 \\
-             &= -0.693 - 2.303 - 2.303 - 0.916 = -6.215
+\text{Score}_1 &= \log 0.5 + \log(4/9) + \log(3/9) + \log(1/9) \\
+             &= -0.693 - 0.811 - 1.099 - 2.197 = -4.800 \\
+\text{Score}_2 &= \log 0.5 + \log(1/9) + \log(1/9) + \log(4/9) \\
+             &= -0.693 - 2.197 - 2.197 - 0.811 = -5.898
 \end{align*}
 \pause
 $\hat{y} = 1$ (Spam) \checkmark
