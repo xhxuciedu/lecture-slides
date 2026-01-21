@@ -85,7 +85,10 @@
   \begin{itemize}
     \item TPR $= \frac{TP}{TP+FN}$, FPR $= \frac{FP}{FP+TN}$.
     \item Sweep decision threshold to trace ROC curve.
-    \item AUC summarizes ranking quality; $0.5$ is random.
+    \item Area under the ROC curve (AUC) summarizes ranking quality; $0.5$ is random.
+    \item \[
+      \text{AUC} = \int_0^1 \text{TPR}(\text{FPR}) \, d(\text{FPR})
+    \]
   \end{itemize}
   \vspace{-0.2em}
   \begin{tikzpicture}
@@ -133,11 +136,30 @@
   \end{tikzpicture}
 \end{frame}
 
+\begin{frame}{Average Precision (AP)}
+  \begin{itemize}
+    \item AP summarizes the precision--recall curve as an area-under-curve.
+    \item Common in object detection: average precision across recall levels.
+    \item Interpolated form:
+  \end{itemize}
+  \[
+    \text{AP} = \int_0^1 p_{\text{interp}}(r)\,dr, \quad
+    p_{\text{interp}}(r) = \max_{\tilde{r}\ge r} p(\tilde{r})
+  \]
+\end{frame}
+
 \begin{frame}{Threshold Selection}
   \begin{itemize}
-    \item Decision threshold converts scores to labels.
-    \item Choose operating point to match costs: $C_{FP}$ vs $C_{FN}$.
-    \item Use validation data, ROC/PR curves, and cost-sensitive analysis.
+    \item Decision threshold converts scores to labels; changes precision/recall.
+    \item Match costs by minimizing expected error cost on validation data:
+    \[
+      \mathbb{E}[\text{cost}] = C_{FP}\cdot \text{FPR}\cdot (1-\pi)
+      + C_{FN}\cdot \text{FNR}\cdot \pi,
+    \]
+    where $\pi = P(y=1)$ is the positive class rate.
+    \item Use validation data and ROC/PR curves to choose an operating point.
+    \item Calibrate scores (e.g., Platt scaling) before thresholding if needed.
+    \item Revisit thresholds when class prevalence or costs shift over time.
   \end{itemize}
 \end{frame}
 
