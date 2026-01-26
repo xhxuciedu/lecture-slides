@@ -102,14 +102,14 @@
       legend style={at={(0.02,0.98)},anchor=north west},
       grid=major
     ]
-      \addplot[only marks, mark=*, color=blue] table {
-      -3 -3.8
-      -2 -2.3
-      -1 -0.7
-       0  0.6
-       1  1.2
-       2  2.9
-       3  3.7
+      \addplot[only marks, mark=*, color=blue] coordinates {
+        (-3,-3.8)
+        (-2,-2.3)
+        (-1,-0.7)
+        (0,0.6)
+        (1,1.2)
+        (2,2.9)
+        (3,3.7)
       };
       \addlegendentry{Noisy data}
       \addplot[domain=-3:3, samples=2, thick, color=green!70!black] {1.2*x};
@@ -225,20 +225,25 @@
 \begin{frame}{Gradient Descent Visualization}
   \centering
   \begin{tikzpicture}
-    \begin{axis}[
-      width=0.85\textwidth,
-      height=0.5\textwidth,
-      xlabel={$\theta_1$},
-      ylabel={$\theta_2$},
-      view={0}{90},
-      colormap/viridis,
-      contour gnuplot={levels={0.2,0.5,1,2,4,8}},
-    ]
-      \addplot3[contour gnuplot] {0.5*(x^2 + 2*y^2)};
-      \addplot+[mark=*, color=red] coordinates {
-        (-2.5,2.0) (-1.6,1.2) (-1.0,0.6) (-0.5,0.2) (-0.2,0.05)
-      };
-    \end{axis}
+    \draw[->] (-3.2,0) -- (3.2,0) node[right] {$\theta_1$};
+    \draw[->] (0,-2.2) -- (0,2.2) node[above] {$\theta_2$};
+
+    % Contours of a quadratic loss (ellipses)
+    \draw[gray] (0,0) ellipse (0.6 and 0.4);
+    \draw[gray] (0,0) ellipse (1.2 and 0.8);
+    \draw[gray] (0,0) ellipse (1.8 and 1.2);
+    \draw[gray] (0,0) ellipse (2.4 and 1.6);
+
+    % Optimization trajectory
+    \draw[red, thick, -latex] (-2.6,1.8) -- (-1.6,1.1);
+    \draw[red, thick, -latex] (-1.6,1.1) -- (-1.0,0.6);
+    \draw[red, thick, -latex] (-1.0,0.6) -- (-0.5,0.25);
+    \draw[red, thick, -latex] (-0.5,0.25) -- (-0.2,0.08);
+    \fill[red] (-2.6,1.8) circle (1.5pt);
+    \fill[red] (-1.6,1.1) circle (1.5pt);
+    \fill[red] (-1.0,0.6) circle (1.5pt);
+    \fill[red] (-0.5,0.25) circle (1.5pt);
+    \fill[red] (-0.2,0.08) circle (1.5pt);
   \end{tikzpicture}
 \end{frame}
 
@@ -335,12 +340,12 @@
       legend style={at={(0.02,0.98)},anchor=north west},
       grid=major
     ]
-      \addplot[only marks, mark=*, color=blue] table {
-      -2 -0.8
-      -1  0.1
-       0  0.9
-       1  1.1
-       2  0.0
+      \addplot[only marks, mark=*, color=blue] coordinates {
+        (-2,-0.8)
+        (-1,0.1)
+        (0,0.9)
+        (1,1.1)
+        (2,0.0)
       };
       \addlegendentry{Data}
       \addplot[domain=-2:2, samples=50, thick, color=green!70!black] {0.1 + 0.4*x};
