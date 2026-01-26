@@ -36,39 +36,44 @@
   \begin{block}{Setup}
     Given labeled data
     \[
-      \mathcal{D} = \{(x^{(i)}, y^{(i)})\}_{i=1}^m, \quad x^{(i)} \in \R^n, \; y^{(i)} \in \R,
+      \mathcal{D} = \{(\mathbf{x}^{(i)}, y^{(i)})\}_{i=1}^m, \quad \mathbf{x}^{(i)} \in \R^n, \; y^{(i)} \in \R,
     \]
-    learn a hypothesis \(h_\theta\) that predicts \(y\) from \(x\).
+    learn a hypothesis \(h_{\boldsymbol{\theta}}\) that predicts \(y\) from \(\mathbf{x}\).
   \end{block}
   \begin{itemize}
-    \item Hypothesis class: \( \mathcal{H} = \{h_\theta : \theta \in \R^{n+1}\}\)
-    \item Loss function \( \ell(h_\theta(x), y) \) measures prediction error.
+    \item Hypothesis class: \( \mathcal{H} = \{h_{\boldsymbol{\theta}} : \boldsymbol{\theta} \in \R^{n+1}\}\)
+    \item Loss function \( \ell(h_{\boldsymbol{\theta}}(\mathbf{x}), y) \) measures prediction error.
   \end{itemize}
 \end{frame}
 
 \begin{frame}{Supervised Learning Pipeline}
   \begin{enumerate}
-    \item Curate labeled data \( \{(x^{(i)}, y^{(i)})\}_{i=1}^m \).
-    \item Choose a hypothesis class and parameters \( \theta \).
+    \item Curate labeled data \( \{(\mathbf{x}^{(i)}, y^{(i)})\}_{i=1}^m \).
+    \item Choose a hypothesis class and parameters \( \boldsymbol{\theta} \).
     \item Define a loss function (e.g., MSE).
-    \item Learn by minimizing empirical risk.
+    \item Learn by minimizing empirical risk (loss on training data).
   \end{enumerate}
-  \vspace{0.5em}
-  Training error vs.\ test error:
-  \[
-  \widehat{R}_{\text{train}}(\theta) \neq \widehat{R}_{\text{test}}(\theta)
-  \]
+
 \end{frame}
 
 \begin{frame}{Training vs.\ Test Error}
   \begin{itemize}
     \item \textbf{Training error}: loss on the dataset used for fitting.
     \item \textbf{Test error}: loss on unseen data from the same distribution.
-    \item Generalization gap indicates overfitting or distribution shift.
+    \item \textbf{Generalization gap}: difference between train and test error.
   \end{itemize}
   \begin{block}{Goal}
-    Minimize expected risk \(R(\theta) = \E_{(x,y)}[\ell(h_\theta(x), y)]\).
+    Minimize training loss
+    \[
+      L(\boldsymbol{\theta}) = \frac{1}{m} \sum_{i=1}^m \ell(h_{\boldsymbol{\theta}}(\mathbf{x}^{(i)}), y^{(i)}).
+    \]
   \end{block}
+
+  \vspace{0.5em}
+  \textbf{Key point:}
+  \[
+    \widehat{R}_{\text{train}}(\boldsymbol{\theta}) \neq \widehat{R}_{\text{test}}(\boldsymbol{\theta})
+  \]
 \end{frame}
 
 \begin{frame}{Running Example: Simple Linear Regression}
@@ -112,7 +117,7 @@
         (-1,-0.7)
         (0,0.6)
         (1,1.2)
-        (2,2.9)
+        (2,3.6)
         (3,3.7)
         (-2.6,-2.9)
         (-0.5,-0.2)
@@ -125,8 +130,9 @@
       \addlegendentry{Estimated line}
 
       % Residual annotation
-      \addplot[dashed, color=black] coordinates {(2,2.9) (2,2.4)};
-      \node[anchor=west] at (axis cs:2.05,2.7) {residual};
+      \addplot[very thick, dashed, color=black] coordinates {(2,3.6) (2,2.4)};
+      \addplot[mark=*, color=black] coordinates {(2,2.4)};
+      \node[anchor=west] at (axis cs:2.1,2.65) {residual};
     \end{axis}
   \end{tikzpicture}
 \end{frame}
@@ -138,35 +144,35 @@
   \]
   \begin{itemize}
     \item Each feature contributes linearly to the prediction.
-    \item Still linear in parameters \(\theta\).
+    \item Still linear in parameters \(\boldsymbol{\theta}\).
   \end{itemize}
 \end{frame}
 
 \begin{frame}{Vectorized Representation}
   Introduce dummy feature \(x_0 = 1\):
   \[
-    y = \theta^T x, \quad x = [x_0, x_1, \ldots, x_n]^T
+    y = \boldsymbol{\theta}^T \mathbf{x}, \quad \mathbf{x} = [x_0, x_1, \ldots, x_n]^T
   \]
   Dimensions:
   \[
-    x \in \R^{n+1}, \quad \theta \in \R^{n+1}
+    \mathbf{x} \in \R^{n+1}, \quad \boldsymbol{\theta} \in \R^{n+1}
   \]
 \end{frame}
 
 \begin{frame}{Dataset in Matrix Form}
   Stack examples into a matrix:
   \[
-    X \in \R^{m \times (n+1)}, \quad y \in \R^m
+    \mathbf{X} \in \R^{m \times (n+1)}, \quad \mathbf{y} \in \R^m
   \]
   Predictions:
   \[
-    \hat{y} = X\theta
+    \hat{\mathbf{y}} = \mathbf{X}\boldsymbol{\theta}
   \]
 \end{frame}
 
 \begin{frame}{Mean Squared Error (MSE)}
   \[
-    \mathcal{L}(\theta) = \frac{1}{m} \sum_{i=1}^m \left(y^{(i)} - \theta^T x^{(i)}\right)^2
+    \mathcal{L}(\boldsymbol{\theta}) = \frac{1}{m} \sum_{i=1}^m \left(y^{(i)} - \boldsymbol{\theta}^T \mathbf{x}^{(i)}\right)^2
   \]
   \begin{itemize}
     \item Penalizes large errors more strongly.
@@ -181,36 +187,36 @@
     \item Leads to closed-form solutions.
   \end{itemize}
   \[
-    p(y \mid x, \theta) = \mathcal{N}(\theta^T x, \sigma^2)
+    p(y \mid \mathbf{x}, \boldsymbol{\theta}) = \mathcal{N}(\boldsymbol{\theta}^T \mathbf{x}, \sigma^2)
   \]
 \end{frame}
 
 \begin{frame}{Learning as Optimization}
   Empirical risk minimization:
   \[
-    \min_{\theta} \; \mathcal{L}(\theta)
+    \min_{\boldsymbol{\theta}} \; \mathcal{L}(\boldsymbol{\theta})
   \]
   \begin{itemize}
-    \item \(\mathcal{L}(\theta)\) is a convex quadratic.
-    \item Unique minimizer if \(X^T X\) is full rank.
+    \item \(\mathcal{L}(\boldsymbol{\theta})\) is a convex quadratic.
+    \item Unique minimizer if \(\mathbf{X}^T \mathbf{X}\) is full rank.
   \end{itemize}
 \end{frame}
 
 \begin{frame}{Geometry of Least Squares}
   \begin{itemize}
-    \item Column space of \(X\) defines all possible predictions.
-    \item Optimal \(\hat{y}\) is orthogonal projection of \(y\) onto \(\text{col}(X)\).
-    \item Residual \(r = y - X\theta^*\) satisfies \(X^T r = 0\).
+    \item Column space of \(\mathbf{X}\) defines all possible predictions.
+    \item Optimal \(\hat{\mathbf{y}}\) is orthogonal projection of \(\mathbf{y}\) onto \(\text{col}(\mathbf{X})\).
+    \item Residual \(\mathbf{r} = \mathbf{y} - \mathbf{X}\boldsymbol{\theta}^*\) satisfies \(\mathbf{X}^T \mathbf{r} = 0\).
   \end{itemize}
 \end{frame}
 
 \begin{frame}{Gradient of the MSE Loss}
   \[
-    \nabla_\theta \mathcal{L}(\theta) = \frac{2}{m} X^T (X\theta - y)
+    \nabla_{\boldsymbol{\theta}} \mathcal{L}(\boldsymbol{\theta}) = \frac{2}{m} \mathbf{X}^T (\mathbf{X}\boldsymbol{\theta} - \mathbf{y})
   \]
   \begin{itemize}
-    \item \(X\theta - y\): residual vector.
-    \item \(X^T\): aggregates residuals by feature.
+    \item \(\mathbf{X}\boldsymbol{\theta} - \mathbf{y}\): residual vector.
+    \item \(\mathbf{X}^T\): aggregates residuals by feature.
   \end{itemize}
 \end{frame}
 
@@ -218,7 +224,7 @@
   \begin{itemize}
     \item Gradient is a vector of partial derivatives:
       \[
-        \nabla_\theta \mathcal{L}(\theta)
+        \nabla_{\boldsymbol{\theta}} \mathcal{L}(\boldsymbol{\theta})
         = \left[\frac{\partial \mathcal{L}}{\partial \theta_0}, \ldots,
         \frac{\partial \mathcal{L}}{\partial \theta_n}\right]^T
       \]
@@ -226,14 +232,14 @@
     \item The negative gradient gives the direction of steepest descent.
   \end{itemize}
   \[
-    \mathcal{L}(\theta + \Delta) \approx \mathcal{L}(\theta) + \nabla_\theta \mathcal{L}(\theta)^T \Delta
+    \mathcal{L}(\boldsymbol{\theta} + \Delta) \approx \mathcal{L}(\boldsymbol{\theta}) + \nabla_{\boldsymbol{\theta}} \mathcal{L}(\boldsymbol{\theta})^T \Delta
   \]
 \end{frame}
 
 \begin{frame}{Gradient Descent Update Rule}
   Iterative update (move opposite the gradient):
   \[
-    \theta^{(t+1)} = \theta^{(t)} - \eta \nabla_\theta \mathcal{L}(\theta^{(t)})
+    \boldsymbol{\theta}^{(t+1)} = \boldsymbol{\theta}^{(t)} - \eta \nabla_{\boldsymbol{\theta}} \mathcal{L}(\boldsymbol{\theta}^{(t)})
   \]
   \begin{itemize}
     \item \(\eta > 0\) is the step size (learning rate).
@@ -257,7 +263,7 @@
 \begin{frame}{Convergence and Conditioning}
   \begin{itemize}
     \item Quadratic objectives allow linear convergence rates.
-    \item Poorly conditioned \(X^T X\) slows convergence.
+    \item Poorly conditioned \(\mathbf{X}^T \mathbf{X}\) slows convergence.
     \item Feature scaling can dramatically improve speed.
   \end{itemize}
 \end{frame}
@@ -280,12 +286,12 @@
 \begin{frame}{Gradient Descent Pseudocode}
   \begin{algorithm}[H]
   \SetAlgoLined
-  \KwIn{Data matrix $X$, targets $y$, step size $\eta$, iterations $T$}
-  \KwOut{Parameters $\theta$}
-  Initialize $\theta \leftarrow 0$\;
+  \KwIn{Data matrix $\mathbf{X}$, targets $\mathbf{y}$, step size $\eta$, iterations $T$}
+  \KwOut{Parameters $\boldsymbol{\theta}$}
+  Initialize $\boldsymbol{\theta} \leftarrow 0$\;
   \For{$t=1$ \textbf{to} $T$}{
-    $g \leftarrow \frac{2}{m} X^T (X\theta - y)$\;
-    $\theta \leftarrow \theta - \eta g$\;
+    $g \leftarrow \frac{2}{m} \mathbf{X}^T (\mathbf{X}\boldsymbol{\theta} - \mathbf{y})$\;
+    $\boldsymbol{\theta} \leftarrow \boldsymbol{\theta} - \eta g$\;
   }
   \end{algorithm}
 \end{frame}
@@ -330,7 +336,7 @@
 \begin{frame}{GD Variants: Gradient Estimates}
   Let \(\mathcal{B}_t\) be a batch at iteration \(t\).
   \[
-    g_t = \frac{2}{|\mathcal{B}_t|} X_{\mathcal{B}_t}^T (X_{\mathcal{B}_t}\theta - y_{\mathcal{B}_t})
+    g_t = \frac{2}{|\mathcal{B}_t|} \mathbf{X}_{\mathcal{B}_t}^T (\mathbf{X}_{\mathcal{B}_t}\boldsymbol{\theta} - \mathbf{y}_{\mathcal{B}_t})
   \]
   \begin{itemize}
     \item Batch GD: \(\mathcal{B}_t = \{1,\ldots,m\}\), low variance, high cost.
@@ -356,21 +362,21 @@
 \end{frame}
 
 \begin{frame}{Closed-Form Solution: Normal Equations}
-  Solve \(\nabla_\theta \mathcal{L}(\theta) = 0\):
+  Solve \(\nabla_{\boldsymbol{\theta}} \mathcal{L}(\boldsymbol{\theta}) = 0\):
   \[
-    X^T X \theta = X^T y
+    \mathbf{X}^T \mathbf{X} \boldsymbol{\theta} = \mathbf{X}^T \mathbf{y}
   \]
   \[
-    \theta^* = (X^T X)^{-1} X^T y
+    \boldsymbol{\theta}^* = (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T \mathbf{y}
   \]
 \end{frame}
 
 \begin{frame}{Invertibility Conditions}
   \begin{itemize}
-    \item \(X^T X\) invertible if columns of \(X\) are linearly independent.
+    \item \(\mathbf{X}^T \mathbf{X}\) invertible if columns of \(\mathbf{X}\) are linearly independent.
     \item If not full rank, use pseudo-inverse:
       \[
-        \theta^* = X^{\dagger} y
+        \boldsymbol{\theta}^* = \mathbf{X}^{\dagger} \mathbf{y}
       \]
   \end{itemize}
 \end{frame}
@@ -409,10 +415,10 @@
 \begin{frame}{Feature Engineering}
   Linear in parameters does not mean linear in inputs:
   \[
-    \phi(x) = [1, x, x^2, \ldots, x^d]
+    \boldsymbol{\phi}(x) = [1, x, x^2, \ldots, x^d]
   \]
   \[
-    y = \theta^T \phi(x)
+    y = \boldsymbol{\theta}^T \boldsymbol{\phi}(x)
   \]
   \begin{itemize}
     \item Enables nonlinear decision boundaries.
@@ -504,11 +510,11 @@
 \begin{frame}{L2 Regularization (Ridge)}
   Objective:
   \[
-    \min_\theta \; \|X\theta - y\|_2^2 + \lambda \|\theta\|_2^2
+    \min_{\boldsymbol{\theta}} \; \|\mathbf{X}\boldsymbol{\theta} - \mathbf{y}\|_2^2 + \lambda \|\boldsymbol{\theta}\|_2^2
   \]
   Closed form:
   \[
-    \theta^* = (X^T X + \lambda I)^{-1} X^T y
+    \boldsymbol{\theta}^* = (\mathbf{X}^T \mathbf{X} + \lambda I)^{-1} \mathbf{X}^T \mathbf{y}
   \]
   Effect: shrinks coefficients toward zero.
 \end{frame}
@@ -516,7 +522,7 @@
 \begin{frame}{L1 Regularization (Lasso)}
   Objective:
   \[
-    \min_\theta \; \|X\theta - y\|_2^2 + \lambda \|\theta\|_1
+    \min_{\boldsymbol{\theta}} \; \|\mathbf{X}\boldsymbol{\theta} - \mathbf{y}\|_2^2 + \lambda \|\boldsymbol{\theta}\|_1
   \]
   \begin{itemize}
     \item Encourages sparse solutions.
