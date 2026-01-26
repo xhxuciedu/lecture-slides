@@ -65,14 +65,14 @@
   \begin{block}{Goal}
     Minimize training loss
     \[
-      L(\boldsymbol{\theta}) = \frac{1}{m} \sum_{i=1}^m \ell(h_{\boldsymbol{\theta}}(\mathbf{x}^{(i)}), y^{(i)}).
+      \mathcal{L}(\boldsymbol{\theta}) = \frac{1}{m} \sum_{i=1}^m \ell(h_{\boldsymbol{\theta}}(\mathbf{x}^{(i)}), y^{(i)}).
     \]
   \end{block}
 
   \vspace{0.5em}
   \textbf{Key point:}
   \[
-    \widehat{R}_{\text{train}}(\boldsymbol{\theta}) \neq \widehat{R}_{\text{test}}(\boldsymbol{\theta})
+    \mathcal{L}(\boldsymbol{\theta}) \neq \mathcal{L}(\boldsymbol{\theta}^*)
   \]
 \end{frame}
 
@@ -162,11 +162,11 @@
 \begin{frame}{Dataset in Matrix Form}
   Stack examples into a matrix:
   \[
-    \mathbf{X} \in \R^{m \times (n+1)}, \quad \mathbf{y} \in \R^m
+    X \in \R^{m \times (n+1)}, \quad \mathbf{y} \in \R^m
   \]
   Predictions:
   \[
-    \hat{\mathbf{y}} = \mathbf{X}\boldsymbol{\theta}
+    \hat{\mathbf{y}} = X\boldsymbol{\theta}
   \]
 \end{frame}
 
@@ -198,25 +198,25 @@
   \]
   \begin{itemize}
     \item \(\mathcal{L}(\boldsymbol{\theta})\) is a convex quadratic.
-    \item Unique minimizer if \(\mathbf{X}^T \mathbf{X}\) is full rank.
+    \item Unique minimizer if \(X^T X\) is full rank.
   \end{itemize}
 \end{frame}
 
 \begin{frame}{Geometry of Least Squares}
   \begin{itemize}
-    \item Column space of \(\mathbf{X}\) defines all possible predictions.
-    \item Optimal \(\hat{\mathbf{y}}\) is orthogonal projection of \(\mathbf{y}\) onto \(\text{col}(\mathbf{X})\).
-    \item Residual \(\mathbf{r} = \mathbf{y} - \mathbf{X}\boldsymbol{\theta}^*\) satisfies \(\mathbf{X}^T \mathbf{r} = 0\).
+    \item Column space of \(X\) defines all possible predictions.
+    \item Optimal \(\hat{\mathbf{y}}\) is orthogonal projection of \(\mathbf{y}\) onto \(\text{col}(X)\).
+    \item Residual \(\mathbf{r} = \mathbf{y} - X\boldsymbol{\theta}^*\) satisfies \(X^T \mathbf{r} = 0\).
   \end{itemize}
 \end{frame}
 
 \begin{frame}{Gradient of the MSE Loss}
   \[
-    \nabla_{\boldsymbol{\theta}} \mathcal{L}(\boldsymbol{\theta}) = \frac{2}{m} \mathbf{X}^T (\mathbf{X}\boldsymbol{\theta} - \mathbf{y})
+    \nabla_{\boldsymbol{\theta}} \mathcal{L}(\boldsymbol{\theta}) = \frac{2}{m} X^T (X\boldsymbol{\theta} - \mathbf{y})
   \]
   \begin{itemize}
-    \item \(\mathbf{X}\boldsymbol{\theta} - \mathbf{y}\): residual vector.
-    \item \(\mathbf{X}^T\): aggregates residuals by feature.
+    \item \(X\boldsymbol{\theta} - \mathbf{y}\): residual vector.
+    \item \(X^T\): aggregates residuals by feature.
   \end{itemize}
 \end{frame}
 
@@ -263,7 +263,7 @@
 \begin{frame}{Convergence and Conditioning}
   \begin{itemize}
     \item Quadratic objectives allow linear convergence rates.
-    \item Poorly conditioned \(\mathbf{X}^T \mathbf{X}\) slows convergence.
+    \item Poorly conditioned \(X^T X\) slows convergence.
     \item Feature scaling can dramatically improve speed.
   \end{itemize}
 \end{frame}
@@ -286,11 +286,11 @@
 \begin{frame}{Gradient Descent Pseudocode}
   \begin{algorithm}[H]
   \SetAlgoLined
-  \KwIn{Data matrix $\mathbf{X}$, targets $\mathbf{y}$, step size $\eta$, iterations $T$}
+  \KwIn{Data matrix $X$, targets $\mathbf{y}$, step size $\eta$, iterations $T$}
   \KwOut{Parameters $\boldsymbol{\theta}$}
   Initialize $\boldsymbol{\theta} \leftarrow 0$\;
   \For{$t=1$ \textbf{to} $T$}{
-    $g \leftarrow \frac{2}{m} \mathbf{X}^T (\mathbf{X}\boldsymbol{\theta} - \mathbf{y})$\;
+    $g \leftarrow \frac{2}{m} X^T (X\boldsymbol{\theta} - \mathbf{y})$\;
     $\boldsymbol{\theta} \leftarrow \boldsymbol{\theta} - \eta g$\;
   }
   \end{algorithm}
@@ -336,7 +336,7 @@
 \begin{frame}{GD Variants: Gradient Estimates}
   Let \(\mathcal{B}_t\) be a batch at iteration \(t\).
   \[
-    g_t = \frac{2}{|\mathcal{B}_t|} \mathbf{X}_{\mathcal{B}_t}^T (\mathbf{X}_{\mathcal{B}_t}\boldsymbol{\theta} - \mathbf{y}_{\mathcal{B}_t})
+    g_t = \frac{2}{|\mathcal{B}_t|} X_{\mathcal{B}_t}^T (X_{\mathcal{B}_t}\boldsymbol{\theta} - \mathbf{y}_{\mathcal{B}_t})
   \]
   \begin{itemize}
     \item Batch GD: \(\mathcal{B}_t = \{1,\ldots,m\}\), low variance, high cost.
@@ -364,19 +364,19 @@
 \begin{frame}{Closed-Form Solution: Normal Equations}
   Solve \(\nabla_{\boldsymbol{\theta}} \mathcal{L}(\boldsymbol{\theta}) = 0\):
   \[
-    \mathbf{X}^T \mathbf{X} \boldsymbol{\theta} = \mathbf{X}^T \mathbf{y}
+    X^T X \boldsymbol{\theta} = X^T \mathbf{y}
   \]
   \[
-    \boldsymbol{\theta}^* = (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T \mathbf{y}
+    \boldsymbol{\theta}^* = (X^T X)^{-1} X^T \mathbf{y}
   \]
 \end{frame}
 
 \begin{frame}{Invertibility Conditions}
   \begin{itemize}
-    \item \(\mathbf{X}^T \mathbf{X}\) invertible if columns of \(\mathbf{X}\) are linearly independent.
+    \item \(X^T X\) invertible if columns of \(X\) are linearly independent.
     \item If not full rank, use pseudo-inverse:
       \[
-        \boldsymbol{\theta}^* = \mathbf{X}^{\dagger} \mathbf{y}
+        \boldsymbol{\theta}^* = X^{\dagger} \mathbf{y}
       \]
   \end{itemize}
 \end{frame}
@@ -441,23 +441,40 @@
       ymin=-1.2, ymax=2.4
     ]
       \addplot[only marks, mark=*, color=blue] coordinates {
-        (-2,-0.8)
-        (-1,0.1)
-        (0,0.9)
-        (1,1.1)
-        (2,0.0)
+        (-2,-0.9)
+        (-1.5,-0.6)
+        (-1,-0.1)
+        (0,0.8)
+        (0.8,1.1)
+        (1.2,0.9)
+        (2,0.1)
       };
-      \addlegendentry{Data}
+      \addlegendentry{Train data}
+      \addplot[only marks, mark=triangle*, color=orange!80!black] coordinates {
+        (-1.7,-0.7)
+        (-0.5,0.4)
+        (0.5,0.9)
+        (1.5,0.5)
+      };
+      \addlegendentry{Test data}
       \addplot[domain=-2:2, samples=50, thick, color=green!70!black] {0.1 + 0.4*x};
       \addlegendentry{Underfit}
-      \addplot[domain=-2:2, samples=200, thick, color=red] {0.9 - 0.2*x - 0.6*x^2 + 0.1*x^3};
+      \addplot[domain=-2:2, samples=200, thick, color=red] {0.75 + 0.35*x - 0.25*x^2};
       \addlegendentry{Good fit}
-      \addplot[domain=-2:2, samples=200, thick, color=purple] {0.9 - 1.5*x + 1.2*x^2 - 0.6*x^3 + 0.15*x^4};
-      \addlegendentry{Overfit}
+      \addplot[thick, color=purple] coordinates {
+        (-2,-0.9)
+        (-1.5,-0.6)
+        (-1,-0.1)
+        (0,0.8)
+        (0.8,1.1)
+        (1.2,0.9)
+        (2,0.1)
+      };
+      \addlegendentry{Overfit (interpolates)}
 
-      \node[anchor=west] at (axis cs:-1.8,1.6) {underfit};
-      \node[anchor=west] at (axis cs:-0.2,2.0) {good fit};
-      \node[anchor=west] at (axis cs:0.8,1.6) {overfit};
+      \node[anchor=west] at (axis cs:-1.9,1.6) {underfit};
+      \node[anchor=west] at (axis cs:-0.4,2.0) {good fit};
+      \node[anchor=west] at (axis cs:0.9,1.6) {overfit};
     \end{axis}
   \end{tikzpicture}
 \end{frame}
@@ -489,12 +506,12 @@
     ]
       \addplot[domain=0:1, samples=100, thick, color=blue] {0.9 - 0.6*x + 0.1};
       \addlegendentry{Training}
-      \addplot[domain=0:1, samples=100, thick, color=red] {0.5 - 0.2*x + 0.7*x^2};
+      \addplot[domain=0:1, samples=100, thick, color=red] {0.45 + 1.6*(x-0.5)^2};
       \addlegendentry{Test}
-      \addplot[dashed, color=black] coordinates {(0.5,0.2) (0.5,1.2)};
+      \addplot[dashed, color=black] coordinates {(0.5,0.45) (0.5,1.2)};
       \node[anchor=west] at (axis cs:0.08,1.05) {underfitting};
       \node[anchor=west] at (axis cs:0.72,1.05) {overfitting};
-      \node[anchor=west] at (axis cs:0.52,0.35) {sweet spot};
+      \node[anchor=west] at (axis cs:0.52,0.5) {sweet spot};
     \end{axis}
   \end{tikzpicture}
 \end{frame}
@@ -510,11 +527,11 @@
 \begin{frame}{L2 Regularization (Ridge)}
   Objective:
   \[
-    \min_{\boldsymbol{\theta}} \; \|\mathbf{X}\boldsymbol{\theta} - \mathbf{y}\|_2^2 + \lambda \|\boldsymbol{\theta}\|_2^2
+    \min_{\boldsymbol{\theta}} \; \|X\boldsymbol{\theta} - \mathbf{y}\|_2^2 + \lambda \|\boldsymbol{\theta}\|_2^2
   \]
   Closed form:
   \[
-    \boldsymbol{\theta}^* = (\mathbf{X}^T \mathbf{X} + \lambda I)^{-1} \mathbf{X}^T \mathbf{y}
+    \boldsymbol{\theta}^* = (X^T X + \lambda I)^{-1} X^T \mathbf{y}
   \]
   Effect: shrinks coefficients toward zero.
 \end{frame}
@@ -522,7 +539,7 @@
 \begin{frame}{L1 Regularization (Lasso)}
   Objective:
   \[
-    \min_{\boldsymbol{\theta}} \; \|\mathbf{X}\boldsymbol{\theta} - \mathbf{y}\|_2^2 + \lambda \|\boldsymbol{\theta}\|_1
+    \min_{\boldsymbol{\theta}} \; \|X\boldsymbol{\theta} - \mathbf{y}\|_2^2 + \lambda \|\boldsymbol{\theta}\|_1
   \]
   \begin{itemize}
     \item Encourages sparse solutions.
@@ -532,19 +549,7 @@
 
 \begin{frame}{L1 vs.\ L2: Geometry}
   \centering
-  \begin{tikzpicture}[scale=1.0]
-    \draw[->] (-2.2,0) -- (2.2,0) node[right] {$\theta_1$};
-    \draw[->] (0,-2.2) -- (0,2.2) node[above] {$\theta_2$};
-    \draw[thick, blue] (0,0) circle (1.5);
-    \draw[thick, red] (0,1.5) -- (1.5,0) -- (0,-1.5) -- (-1.5,0) -- cycle;
-    \draw[thick, black] (1.2,0.3) ellipse (1.4 and 0.8);
-    \fill[black] (1.5,0) circle (2pt);
-    \fill[black] (1.1,1.0) circle (2pt);
-    \node[blue] at (1.2,1.2) {$\ell_2$ ball};
-    \node[red] at (-1.2,1.2) {$\ell_1$ ball};
-    \node[black] at (1.9,0.2) {sparse corner};
-    \node[black] at (1.6,1.0) {shrinkage};
-  \end{tikzpicture}
+  \includegraphics[width=0.85\textwidth]{figs/regularization_l1_vs_l2.png}
 \end{frame}
 
 \begin{frame}{Summary}
@@ -553,14 +558,5 @@
     \item Optimization via gradient descent or closed-form normal equations.
     \item Feature mappings enable nonlinear trends.
     \item Regularization controls overfitting.
-  \end{itemize}
-\end{frame}
-
-\begin{frame}{Looking Ahead}
-  Connections to:
-  \begin{itemize}
-    \item Generalized linear models (logistic, Poisson).
-    \item Kernel methods and RKHS regression.
-    \item Linear layers inside deep networks.
   \end{itemize}
 \end{frame}
