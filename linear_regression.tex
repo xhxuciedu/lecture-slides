@@ -15,7 +15,8 @@
   \begin{itemize}
     \item Foundational model for supervised learning and statistical inference.
     \item Interpretable parameters with clear geometric meaning.
-    \item Baseline for more complex models and a building block for GLMs.
+    \item Lays the foundation for building ML models.
+    \item Later supports building neural networks (linear layers).
     \item Efficient algorithms with both closed-form and iterative solutions.
   \end{itemize}
 \end{frame}
@@ -99,7 +100,10 @@
       height=0.5\textwidth,
       xlabel={$x$},
       ylabel={$y$},
+      xmin=-3.5, xmax=3.5,
+      ymin=-4.5, ymax=4.5,
       legend style={at={(0.02,0.98)},anchor=north west},
+      legend cell align=left,
       grid=major
     ]
       \addplot[only marks, mark=*, color=blue] coordinates {
@@ -110,12 +114,19 @@
         (1,1.2)
         (2,2.9)
         (3,3.7)
+        (-2.6,-2.9)
+        (-0.5,-0.2)
+        (2.4,2.5)
       };
       \addlegendentry{Noisy data}
       \addplot[domain=-3:3, samples=2, thick, color=green!70!black] {1.2*x};
       \addlegendentry{True line}
       \addplot[domain=-3:3, samples=2, thick, color=red] {0.2 + 1.1*x};
       \addlegendentry{Estimated line}
+
+      % Residual annotation
+      \addplot[dashed, color=black] coordinates {(2,2.9) (2,2.4)};
+      \node[anchor=west] at (axis cs:2.05,2.7) {residual};
     \end{axis}
   \end{tikzpicture}
 \end{frame}
@@ -203,23 +214,80 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}{Gradient Descent}
-  Iterative update:
+\begin{frame}{What Is a Gradient?}
+  \begin{itemize}
+    \item Gradient is a vector of partial derivatives:
+      \[
+        \nabla_\theta \mathcal{L}(\theta)
+        = \left[\frac{\partial \mathcal{L}}{\partial \theta_0}, \ldots,
+        \frac{\partial \mathcal{L}}{\partial \theta_n}\right]^T
+      \]
+    \item Points in the direction of steepest ascent.
+    \item The negative gradient gives the direction of steepest descent.
+  \end{itemize}
+  \[
+    \mathcal{L}(\theta + \Delta) \approx \mathcal{L}(\theta) + \nabla_\theta \mathcal{L}(\theta)^T \Delta
+  \]
+\end{frame}
+
+\begin{frame}{Gradient Descent Update Rule}
+  Iterative update (move opposite the gradient):
   \[
     \theta^{(t+1)} = \theta^{(t)} - \eta \nabla_\theta \mathcal{L}(\theta^{(t)})
   \]
   \begin{itemize}
-    \item Step size \(\eta\) controls progress.
-    \item Converges for sufficiently small \(\eta\).
+    \item \(\eta > 0\) is the step size (learning rate).
+    \item Larger gradient \(\Rightarrow\) larger update direction.
   \end{itemize}
 \end{frame}
 
-\begin{frame}{Convergence Intuition}
+\begin{frame}{Choosing the Step Size}
   \begin{itemize}
-    \item Too small \(\eta\): slow progress.
-    \item Too large \(\eta\): divergence or oscillation.
-    \item Quadratic objectives allow theoretical convergence rates.
+    \item \textbf{Too small}: very slow convergence.
+    \item \textbf{Too large}: divergence or oscillation.
+    \item Practical strategies:
+      \begin{itemize}
+        \item Start with a moderate \(\eta\) and tune on validation loss.
+        \item Use decaying schedules: \(\eta_t = \eta_0 / (1 + \alpha t)\).
+        \item Normalize features to reduce conditioning issues.
+      \end{itemize}
   \end{itemize}
+\end{frame}
+
+\begin{frame}{Convergence and Conditioning}
+  \begin{itemize}
+    \item Quadratic objectives allow linear convergence rates.
+    \item Poorly conditioned \(X^T X\) slows convergence.
+    \item Feature scaling can dramatically improve speed.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Pros and Cons of Gradient Descent}
+  \textbf{Pros}
+  \begin{itemize}
+    \item Scales to large datasets.
+    \item Works with regularized and non-closed-form objectives.
+  \end{itemize}
+  \textbf{Cons}
+  \begin{itemize}
+    \item Requires step-size tuning.
+    \item For nonconvex losses, may converge to local minima or saddle points.
+  \end{itemize}
+  \vspace{0.3em}
+  \textbf{Note:} Linear regression is convex, so GD converges to the global optimum.
+\end{frame}
+
+\begin{frame}{Gradient Descent Pseudocode}
+  \begin{algorithm}[H]
+  \SetAlgoLined
+  \KwIn{Data matrix $X$, targets $y$, step size $\eta$, iterations $T$}
+  \KwOut{Parameters $\theta$}
+  Initialize $\theta \leftarrow 0$\;
+  \For{$t=1$ \textbf{to} $T$}{
+    $g \leftarrow \frac{2}{m} X^T (X\theta - y)$\;
+    $\theta \leftarrow \theta - \eta g$\;
+  }
+  \end{algorithm}
 \end{frame}
 
 \begin{frame}{Gradient Descent Visualization}
@@ -244,6 +312,9 @@
     \fill[red] (-1.0,0.6) circle (1.5pt);
     \fill[red] (-0.5,0.25) circle (1.5pt);
     \fill[red] (-0.2,0.08) circle (1.5pt);
+
+    \node[gray] at (2.1,1.4) {level sets};
+    \node[red] at (-1.7,1.9) {trajectory};
   \end{tikzpicture}
 \end{frame}
 
@@ -254,6 +325,26 @@
     \item \textbf{Mini-batch GD}: uses small batches.
   \end{itemize}
   Trade-offs: computation vs.\ variance vs.\ convergence speed.
+\end{frame}
+
+\begin{frame}{GD Variants: Gradient Estimates}
+  Let \(\mathcal{B}_t\) be a batch at iteration \(t\).
+  \[
+    g_t = \frac{2}{|\mathcal{B}_t|} X_{\mathcal{B}_t}^T (X_{\mathcal{B}_t}\theta - y_{\mathcal{B}_t})
+  \]
+  \begin{itemize}
+    \item Batch GD: \(\mathcal{B}_t = \{1,\ldots,m\}\), low variance, high cost.
+    \item SGD: \(|\mathcal{B}_t| = 1\), high variance, fast iterations.
+    \item Mini-batch: \(1 < |\mathcal{B}_t| \ll m\), best of both.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Practical Notes on GD Variants}
+  \begin{itemize}
+    \item Shuffle data each epoch to avoid bias in SGD.
+    \item Use momentum or adaptive methods (Adam) for faster training.
+    \item Larger batches suit parallel hardware; smaller batches generalize well.
+  \end{itemize}
 \end{frame}
 
 \begin{frame}{When to Use Which Variant}
@@ -338,7 +429,10 @@
       xlabel={$x$},
       ylabel={$y$},
       legend style={at={(0.02,0.98)},anchor=north west},
-      grid=major
+      legend cell align=left,
+      grid=major,
+      xmin=-2.2, xmax=2.2,
+      ymin=-1.2, ymax=2.4
     ]
       \addplot[only marks, mark=*, color=blue] coordinates {
         (-2,-0.8)
@@ -354,6 +448,10 @@
       \addlegendentry{Good fit}
       \addplot[domain=-2:2, samples=200, thick, color=purple] {0.9 - 1.5*x + 1.2*x^2 - 0.6*x^3 + 0.15*x^4};
       \addlegendentry{Overfit}
+
+      \node[anchor=west] at (axis cs:-1.8,1.6) {underfit};
+      \node[anchor=west] at (axis cs:-0.2,2.0) {good fit};
+      \node[anchor=west] at (axis cs:0.8,1.6) {overfit};
     \end{axis}
   \end{tikzpicture}
 \end{frame}
@@ -378,12 +476,19 @@
       xlabel={Model complexity},
       ylabel={Error},
       legend style={at={(0.02,0.98)},anchor=north west},
-      grid=major
+      legend cell align=left,
+      grid=major,
+      xmin=0, xmax=1,
+      ymin=0.2, ymax=1.2
     ]
       \addplot[domain=0:1, samples=100, thick, color=blue] {0.9 - 0.6*x + 0.1};
       \addlegendentry{Training}
       \addplot[domain=0:1, samples=100, thick, color=red] {0.5 - 0.2*x + 0.7*x^2};
       \addlegendentry{Test}
+      \addplot[dashed, color=black] coordinates {(0.5,0.2) (0.5,1.2)};
+      \node[anchor=west] at (axis cs:0.08,1.05) {underfitting};
+      \node[anchor=west] at (axis cs:0.72,1.05) {overfitting};
+      \node[anchor=west] at (axis cs:0.52,0.35) {sweet spot};
     \end{axis}
   \end{tikzpicture}
 \end{frame}
@@ -427,8 +532,12 @@
     \draw[thick, blue] (0,0) circle (1.5);
     \draw[thick, red] (0,1.5) -- (1.5,0) -- (0,-1.5) -- (-1.5,0) -- cycle;
     \draw[thick, black] (1.2,0.3) ellipse (1.4 and 0.8);
-    \node[blue] at (1.2,1.2) {$\ell_2$};
-    \node[red] at (-1.2,1.2) {$\ell_1$};
+    \fill[black] (1.5,0) circle (2pt);
+    \fill[black] (1.1,1.0) circle (2pt);
+    \node[blue] at (1.2,1.2) {$\ell_2$ ball};
+    \node[red] at (-1.2,1.2) {$\ell_1$ ball};
+    \node[black] at (1.9,0.2) {sparse corner};
+    \node[black] at (1.6,1.0) {shrinkage};
   \end{tikzpicture}
 \end{frame}
 
