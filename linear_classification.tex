@@ -15,7 +15,7 @@
   \begin{itemize}
     \item Core tool for binary and multi-class prediction.
     \item Interpretable decision boundary and scalable training.
-    \item Foundation for logistic regression, SVMs, and neural nets.
+    \item Foundation for logistic regression and neural nets.
   \end{itemize}
 \end{frame}
 
@@ -23,16 +23,17 @@
   \begin{itemize}
     \item Define linear classifiers and hypothesis classes.
     \item Understand why 0--1 loss is hard to optimize.
-    \item Use surrogate losses (hinge, logistic).
-    \item Apply gradient-based optimization and variants.
-    \item Implement a basic classifier in Python.
+    \item Derive binary NLL (cross-entropy) from a probabilistic model.
+    \item Compute gradients and apply gradient descent.
+    \item Extend to multi-class with softmax and one-hot targets.
+    \item Implement gradient descent in Python.
   \end{itemize}
 \end{frame}
 
 \begin{frame}{Supervised Classification Setup}
   \begin{block}{Data}
     \[
-      \mathcal{D} = \{(\mathbf{x}^{(i)}, y^{(i)})\}_{i=1}^m, \quad \mathbf{x}^{(i)} \in \R^n, \; y^{(i)} \in \{-1,+1\}
+      \mathcal{D} = \{(\mathbf{x}^{(i)}, y^{(i)})\}_{i=1}^m, \quad \mathbf{x}^{(i)} \in \R^n, \; y^{(i)} \in \{0,1\}
     \]
   \end{block}
   \begin{itemize}
@@ -47,7 +48,7 @@
   \]
   Prediction rule:
   \[
-    \hat{y} = \text{sign}(f_{\boldsymbol{w},b}(\mathbf{x}))
+    \hat{y} = \mathbf{1}[f_{\boldsymbol{w},b}(\mathbf{x}) \ge 0]
   \]
   \begin{itemize}
     \item \(\boldsymbol{w} \in \R^n\), \(b \in \R\).
@@ -69,30 +70,13 @@
 \begin{frame}{Linear Separability}
   \begin{itemize}
     \item If classes are linearly separable, some \((\boldsymbol{w}, b)\) achieves zero training error.
-    \item If not separable, we minimize a surrogate loss.
+    \item If not separable, we fit a probabilistic model and minimize NLL.
   \end{itemize}
-  \begin{center}
-  \begin{tikzpicture}
-    \draw[->] (-2.2,0) -- (2.2,0);
-    \draw[->] (0,-1.8) -- (0,1.8);
-    \fill[blue] (-1.2,0.8) circle (2pt);
-    \fill[blue] (-0.8,1.1) circle (2pt);
-    \fill[blue] (-1.5,0.4) circle (2pt);
-    \fill[red] (1.1,-0.6) circle (2pt);
-    \fill[red] (1.4,-0.9) circle (2pt);
-    \fill[red] (0.9,-0.3) circle (2pt);
-    \draw[thick] (-2,1.2) -- (2,-1.2);
-  \end{tikzpicture}
-  \end{center}
 \end{frame}
 
 \begin{frame}{0--1 Loss}
   \[
-    \ell_{0/1}(y, f(\mathbf{x})) =
-    \begin{cases}
-      1 & \text{if } y f(\mathbf{x}) \le 0 \\
-      0 & \text{otherwise}
-    \end{cases}
+    \ell_{0/1}(y, \hat{y}) = \mathbf{1}[y \ne \hat{y}]
   \]
   \begin{itemize}
     \item Directly measures classification error.
@@ -111,73 +95,76 @@
   \end{block}
 \end{frame}
 
-\begin{frame}{Surrogate Losses}
-  Let \(z = y(\boldsymbol{w}^T \mathbf{x} + b)\).
+\begin{frame}{Probabilistic Model (Binary)}
+  Define a score:
+  \[
+    s(\mathbf{x}) = \boldsymbol{w}^T \mathbf{x} + b
+  \]
+  Logistic model:
+  \[
+    P(y=1 \mid \mathbf{x}) = \sigma(s(\mathbf{x})), \quad \sigma(t) = \frac{1}{1+e^{-t}}
+  \]
+  \[
+    P(y \mid \mathbf{x}) = \text{Bernoulli}(y; \sigma(s(\mathbf{x})))
+  \]
+\end{frame}
+
+\begin{frame}{Binary NLL (Single Example)}
+  For \(y \in \{0,1\}\) and \(p = \sigma(s(\mathbf{x}))\):
+  \[
+    \ell(\boldsymbol{w}, b; \mathbf{x}, y)
+    = -\log P(y \mid \mathbf{x})
+    = -\left[y \log p + (1-y)\log(1-p)\right]
+  \]
   \begin{itemize}
-    \item \textbf{Hinge loss (SVM)}:
-      \[
-        \ell_{\text{hinge}}(z) = \max(0, 1 - z)
-      \]
-    \item \textbf{Logistic loss}:
-      \[
-        \ell_{\text{log}}(z) = \log(1 + e^{-z})
-      \]
+    \item Negative log-likelihood (NLL) of a Bernoulli model.
+    \item Also called binary cross-entropy loss.
   \end{itemize}
 \end{frame}
 
-\begin{frame}{Loss Comparison (Shape)}
-  \centering
-  \begin{tikzpicture}
-    \begin{axis}[
-      width=0.75\textwidth,
-      height=0.45\textwidth,
-      xlabel={$z = y f(\mathbf{x})$},
-      ylabel={loss},
-      grid=major,
-      xmin=-3, xmax=3,
-      ymin=0, ymax=3
-    ]
-      \addplot[thick, color=red] {max(0,1-x)};
-      \addlegendentry{Hinge}
-      \addplot[thick, color=blue] {ln(1+exp(-x))};
-      \addlegendentry{Logistic}
-    \end{axis}
-  \end{tikzpicture}
-\end{frame}
-
-\begin{frame}{Empirical Loss}
-  Training objective (logistic example):
+\begin{frame}{Binary Cross-Entropy (Dataset)}
   \[
-    \mathcal{L}(\boldsymbol{w}, b) = \frac{1}{m} \sum_{i=1}^m \log(1 + e^{-y^{(i)}(\boldsymbol{w}^T \mathbf{x}^{(i)} + b)})
+    \mathcal{L}(\boldsymbol{w}, b) =
+    \frac{1}{m}\sum_{i=1}^m
+    \left[-y^{(i)} \log p^{(i)} - (1-y^{(i)})\log(1-p^{(i)})\right]
   \]
+  where \(p^{(i)} = \sigma(\boldsymbol{w}^T \mathbf{x}^{(i)} + b)\).
   \begin{itemize}
     \item Convex in \((\boldsymbol{w}, b)\).
-    \item Supports gradient-based optimization.
+    \item Enables global optimum with gradient descent.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Convexity and Implications}
+  \begin{itemize}
+    \item Binary NLL for logistic regression is convex.
+    \item Any local minimum is a global minimum.
+    \item Gradient descent converges with an appropriate step size.
   \end{itemize}
 \end{frame}
 
 \begin{frame}{Regularization}
   \[
-    \min_{\boldsymbol{w}, b} \; \mathcal{L}(\boldsymbol{w}, b) + \lambda \|\boldsymbol{w}\|_2^2
+    \min_{\boldsymbol{w}, b} \; \mathcal{L}(\boldsymbol{w}, b) + \frac{\lambda}{2} \|\boldsymbol{w}\|_2^2
   \]
   \begin{itemize}
     \item Controls complexity and improves generalization.
-    \item Encourages smaller weights and larger margins.
+    \item Encourages smaller weights and more stable decision boundaries.
+    \item Multi-class: add \(\frac{\lambda}{2}\|\Theta\|_F^2\).
   \end{itemize}
 \end{frame}
 
-\begin{frame}{Gradient of Logistic Loss}
-  For a single example with \(z = y(\boldsymbol{w}^T \mathbf{x} + b)\):
+\begin{frame}{Gradient of Binary NLL}
+  Let \(\mathbf{p} = \sigma(X\boldsymbol{w} + b\mathbf{1}) \in \R^m\).
   \[
-    \nabla_{\boldsymbol{w}} \ell_{\text{log}}(z)
-    = -\frac{y \mathbf{x}}{1 + e^{z}}
+    \nabla_{\boldsymbol{w}} \mathcal{L} = \frac{1}{m} X^T (\mathbf{p} - \mathbf{y})
   \]
   \[
-    \frac{\partial \ell_{\text{log}}(z)}{\partial b}
-    = -\frac{y}{1 + e^{z}}
+    \frac{\partial \mathcal{L}}{\partial b} = \frac{1}{m} \mathbf{1}^T (\mathbf{p} - \mathbf{y})
   \]
   \begin{itemize}
-    \item Small when correctly classified with large margin.
+    \item Gradient is proportional to prediction error \((\mathbf{p} - \mathbf{y})\).
+    \item With L2 regularization: add \(\lambda \boldsymbol{w}\) to \(\nabla_{\boldsymbol{w}}\).
   \end{itemize}
 \end{frame}
 
@@ -193,22 +180,20 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}{Hinge Loss and Subgradients}
-  \[
-    \ell_{\text{hinge}}(z) = \max(0, 1-z)
-  \]
-  Subgradient:
-  \[
-    \partial \ell_{\text{hinge}}(z) =
-    \begin{cases}
-      -y\mathbf{x} & z < 1 \\
-      0 & z > 1
-    \end{cases}
-  \]
-  \begin{itemize}
-    \item Use subgradient descent or SGD.
-  \end{itemize}
+\begin{frame}{Gradient Descent Pseudocode (Binary)}
+  \begin{algorithm}[H]
+  \SetAlgoLined
+  \KwIn{Data $X$, labels $\mathbf{y} \in \{0,1\}^m$, step size $\eta$, steps $T$}
+  \KwOut{Parameters $\boldsymbol{w}, b$}
+  Initialize $\boldsymbol{w} \leftarrow 0$, $b \leftarrow 0$\;
+  \For{$t=1$ \textbf{to} $T$}{
+    $\mathbf{p} \leftarrow \sigma(X\boldsymbol{w} + b\mathbf{1})$\;
+    $\boldsymbol{w} \leftarrow \boldsymbol{w} - \eta \frac{1}{m} X^T (\mathbf{p}-\mathbf{y})$\;
+    $b \leftarrow b - \eta \frac{1}{m} \mathbf{1}^T (\mathbf{p}-\mathbf{y})$\;
+  }
+  \end{algorithm}
 \end{frame}
+
 
 \begin{frame}{Variants of Gradient Descent}
   \begin{itemize}
@@ -221,17 +206,6 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}{Perceptron Algorithm}
-  Update rule for misclassified points:
-  \[
-    \boldsymbol{w} \leftarrow \boldsymbol{w} + y^{(i)} \mathbf{x}^{(i)}, \quad
-    b \leftarrow b + y^{(i)}
-  \]
-  \begin{itemize}
-    \item Converges if data are linearly separable.
-    \item Simple and fast, but not probabilistic.
-  \end{itemize}
-\end{frame}
 
 \begin{frame}[fragile]{Logistic Regression in Python}
 \begin{verbatim}
@@ -243,10 +217,9 @@ def logistic_gd(X, y, eta=0.1, steps=1000):
     b = 0.0
     for _ in range(steps):
         scores = X @ w + b
-        margins = y * scores
-        probs = 1.0 / (1.0 + np.exp(margins))
-        grad_w = -(1/m) * (X.T @ (y * probs))
-        grad_b = -(1/m) * np.sum(y * probs)
+        p = 1.0 / (1.0 + np.exp(-scores))
+        grad_w = (1/m) * (X.T @ (p - y))
+        grad_b = (1/m) * np.sum(p - y)
         w -= eta * grad_w
         b -= eta * grad_b
     return w, b
@@ -286,6 +259,7 @@ def logistic_gd(X, y, eta=0.1, steps=1000):
   \begin{itemize}
     \item Parameter vectors: \(\boldsymbol{\theta}_k \in \R^n\).
     \item Parameter matrix: \(\Theta = [\boldsymbol{\theta}_1,\ldots,\boldsymbol{\theta}_K] \in \R^{n \times K}\).
+    \item Bias terms can be absorbed by augmenting \(\mathbf{x}\) with \(x_0=1\).
   \end{itemize}
 \end{frame}
 
@@ -300,33 +274,47 @@ def logistic_gd(X, y, eta=0.1, steps=1000):
   \]
 \end{frame}
 
-\begin{frame}{Negative Log-Likelihood (NLL)}
-  For one example \((\mathbf{x}, y)\):
+\begin{frame}{Softmax: Stable Computation}
+  For a score vector \(\mathbf{s} \in \R^K\):
   \[
-    \ell(\Theta; \mathbf{x}, y)
-    = -\log P(y \mid \mathbf{x})
-    = -\log \frac{e^{\boldsymbol{\theta}_y^T \mathbf{x}}}{\sum_{j=1}^K e^{\boldsymbol{\theta}_j^T \mathbf{x}}}
+    \text{softmax}(\mathbf{s})_k =
+    \frac{e^{s_k - \max_j s_j}}{\sum_{j=1}^K e^{s_j - \max_\ell s_\ell}}
   \]
   \begin{itemize}
-    \item Equivalent to cross-entropy with one-hot labels.
-    \item Penalizes confident wrong predictions strongly.
+    \item Subtracting \(\max_j s_j\) prevents overflow.
+    \item The distribution is unchanged by constant shifts.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Negative Log-Likelihood (NLL)}
+  For one example \((\mathbf{x}, \mathbf{y})\) with one-hot \(\mathbf{y} \in \{0,1\}^K\):
+  \[
+    \ell(\Theta; \mathbf{x}, \mathbf{y})
+    = -\sum_{k=1}^K y_k \log P(y=k \mid \mathbf{x})
+  \]
+  Using softmax:
+  \[
+    \ell = -\log \frac{e^{\boldsymbol{\theta}_{y}^T \mathbf{x}}}{\sum_{j=1}^K e^{\boldsymbol{\theta}_j^T \mathbf{x}}}
+  \]
+  \begin{itemize}
+    \item This is cross-entropy between \(\mathbf{y}\) and predicted probabilities.
   \end{itemize}
 \end{frame}
 
 \begin{frame}{Cross-Entropy Loss (Dataset)}
-  One-hot label vector \(\mathbf{y}^{(i)} \in \R^K\).
+  Stack one-hot labels into \(Y \in \R^{m \times K}\).
   \[
     \mathcal{L}(\Theta) =
     -\frac{1}{m}\sum_{i=1}^m \sum_{k=1}^K y_k^{(i)} \log P(y=k \mid \mathbf{x}^{(i)})
   \]
   \begin{itemize}
-    \item Same as average NLL.
+    \item Exactly the average NLL over the dataset.
     \item Convex in \(\Theta\) for softmax regression.
   \end{itemize}
 \end{frame}
 
 \begin{frame}{Gradient of Softmax Loss}
-  Let \(P^{(i)} \in \R^K\) be predicted probabilities.
+  Let \(P \in \R^{m \times K}\) be predicted probabilities.
   \[
     \nabla_{\boldsymbol{\theta}_k} \mathcal{L}
     = \frac{1}{m}\sum_{i=1}^m \left(P_k^{(i)} - y_k^{(i)}\right)\mathbf{x}^{(i)}
@@ -374,7 +362,7 @@ def softmax_gd(X, Y, eta=0.1, steps=500):
     \item Use feature maps \(\boldsymbol{\phi}(\mathbf{x})\) to capture nonlinearity.
   \end{itemize}
   \[
-    \hat{y} = \text{sign}(\boldsymbol{w}^T \boldsymbol{\phi}(\mathbf{x}) + b)
+    \hat{y} = \mathbf{1}[\boldsymbol{w}^T \boldsymbol{\phi}(\mathbf{x}) + b \ge 0]
   \]
 \end{frame}
 
@@ -389,8 +377,8 @@ def softmax_gd(X, Y, eta=0.1, steps=500):
 \begin{frame}{Summary}
   \begin{itemize}
     \item Linear classifiers predict via a hyperplane.
-    \item 0--1 loss is replaced by convex surrogates.
-    \item Gradient-based optimization scales to large data.
-    \item Logistic regression yields probabilities.
+    \item Binary classification uses NLL / cross-entropy from a Bernoulli model.
+    \item Convex losses enable reliable gradient descent.
+    \item Softmax extends to multi-class with one-hot cross-entropy.
   \end{itemize}
 \end{frame}
