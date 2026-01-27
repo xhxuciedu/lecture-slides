@@ -43,33 +43,33 @@
 \end{frame}
 
 \begin{frame}{Hypothesis Class: Linear Classifiers}
+  Introduce a dummy feature \(x_0 = 1\) and augmented vector
   \[
-    f_{\boldsymbol{w},b}(\mathbf{x}) = \boldsymbol{w}^T \mathbf{x} + b
+    \tilde{\mathbf{x}} = [1, x_1, \ldots, x_n]^T \in \R^{n+1}.
   \]
-  Prediction rule:
+  Define a single parameter vector
   \[
-    \hat{y} = \mathbf{1}[f_{\boldsymbol{w},b}(\mathbf{x}) \ge 0]
+    \boldsymbol{\theta} = [b, w_1, \ldots, w_n]^T \in \R^{n+1}.
   \]
-  \begin{itemize}
-    \item \(\boldsymbol{w} \in \R^n\), \(b \in \R\).
-    \item Decision boundary: \( \boldsymbol{w}^T \mathbf{x} + b = 0 \).
-  \end{itemize}
+  Model and prediction:
+  \[
+    f_{\boldsymbol{\theta}}(\tilde{\mathbf{x}}) = \boldsymbol{\theta}^T \tilde{\mathbf{x}},
+    \quad
+    \hat{y} = \mathbf{1}[f_{\boldsymbol{\theta}}(\tilde{\mathbf{x}}) \ge 0].
+  \]
 \end{frame}
 
 \begin{frame}{Geometric Interpretation}
   \begin{itemize}
-    \item \(\boldsymbol{w}\) is normal to the separating hyperplane.
-    \item Signed distance (up to scale):
-      \[
-        \text{margin} = \frac{\boldsymbol{w}^T \mathbf{x} + b}{\|\boldsymbol{w}\|_2}
-      \]
+    \item The hyperplane is \(\boldsymbol{\theta}^T \tilde{\mathbf{x}} = 0\).
+    \item Signed distance (up to scale) depends on \(\boldsymbol{\theta}\).
     \item Larger margin \(\Rightarrow\) more confident predictions.
   \end{itemize}
 \end{frame}
 
 \begin{frame}{Linear Separability}
   \begin{itemize}
-    \item If classes are linearly separable, some \((\boldsymbol{w}, b)\) achieves zero training error.
+    \item If classes are linearly separable, some \(\boldsymbol{\theta}\) achieves zero training error.
     \item If not separable, we fit a probabilistic model and minimize NLL.
   \end{itemize}
 \end{frame}
@@ -98,22 +98,22 @@
 \begin{frame}{Probabilistic Model (Binary)}
   Define a score:
   \[
-    s(\mathbf{x}) = \boldsymbol{w}^T \mathbf{x} + b
+    s(\tilde{\mathbf{x}}) = \boldsymbol{\theta}^T \tilde{\mathbf{x}}
   \]
   Logistic model:
   \[
-    P(y=1 \mid \mathbf{x}) = \sigma(s(\mathbf{x})), \quad \sigma(t) = \frac{1}{1+e^{-t}}
+    P(y=1 \mid \tilde{\mathbf{x}}) = \sigma(s(\tilde{\mathbf{x}})), \quad \sigma(t) = \frac{1}{1+e^{-t}}
   \]
   \[
-    P(y \mid \mathbf{x}) = \text{Bernoulli}(y; \sigma(s(\mathbf{x})))
+    P(y \mid \tilde{\mathbf{x}}) = \text{Bernoulli}(y; \sigma(s(\tilde{\mathbf{x}})))
   \]
 \end{frame}
 
 \begin{frame}{Binary NLL (Single Example)}
-  For \(y \in \{0,1\}\) and \(p = \sigma(s(\mathbf{x}))\):
+  For \(y \in \{0,1\}\) and \(p = \sigma(s(\tilde{\mathbf{x}}))\):
   \[
-    \ell(\boldsymbol{w}, b; \mathbf{x}, y)
-    = -\log P(y \mid \mathbf{x})
+    \ell(\boldsymbol{\theta}; \tilde{\mathbf{x}}, y)
+    = -\log P(y \mid \tilde{\mathbf{x}})
     = -\left[y \log p + (1-y)\log(1-p)\right]
   \]
   \begin{itemize}
@@ -124,13 +124,13 @@
 
 \begin{frame}{Binary Cross-Entropy (Dataset)}
   \[
-    \mathcal{L}(\boldsymbol{w}, b) =
+    \mathcal{L}(\boldsymbol{\theta}) =
     \frac{1}{m}\sum_{i=1}^m
     \left[-y^{(i)} \log p^{(i)} - (1-y^{(i)})\log(1-p^{(i)})\right]
   \]
-  where \(p^{(i)} = \sigma(\boldsymbol{w}^T \mathbf{x}^{(i)} + b)\).
+  where \(p^{(i)} = \sigma(\boldsymbol{\theta}^T \tilde{\mathbf{x}}^{(i)})\).
   \begin{itemize}
-    \item Convex in \((\boldsymbol{w}, b)\).
+    \item Convex in \(\boldsymbol{\theta}\).
     \item Enables global optimum with gradient descent.
   \end{itemize}
 \end{frame}
@@ -145,7 +145,7 @@
 
 \begin{frame}{Regularization}
   \[
-    \min_{\boldsymbol{w}, b} \; \mathcal{L}(\boldsymbol{w}, b) + \frac{\lambda}{2} \|\boldsymbol{w}\|_2^2
+    \min_{\boldsymbol{\theta}} \; \mathcal{L}(\boldsymbol{\theta}) + \frac{\lambda}{2} \|\boldsymbol{\theta}\|_2^2
   \]
   \begin{itemize}
     \item Controls complexity and improves generalization.
@@ -155,24 +155,20 @@
 \end{frame}
 
 \begin{frame}{Gradient of Binary NLL}
-  Let \(\mathbf{p} = \sigma(X\boldsymbol{w} + b\mathbf{1}) \in \R^m\).
+  Let \(\tilde{X} \in \R^{m \times (n+1)}\) stack augmented features and
+  \(\mathbf{p} = \sigma(\tilde{X}\boldsymbol{\theta})\).
   \[
-    \nabla_{\boldsymbol{w}} \mathcal{L} = \frac{1}{m} X^T (\mathbf{p} - \mathbf{y})
-  \]
-  \[
-    \frac{\partial \mathcal{L}}{\partial b} = \frac{1}{m} \mathbf{1}^T (\mathbf{p} - \mathbf{y})
+    \nabla_{\boldsymbol{\theta}} \mathcal{L} = \frac{1}{m} \tilde{X}^T (\mathbf{p} - \mathbf{y})
   \]
   \begin{itemize}
     \item Gradient is proportional to prediction error \((\mathbf{p} - \mathbf{y})\).
-    \item With L2 regularization: add \(\lambda \boldsymbol{w}\) to \(\nabla_{\boldsymbol{w}}\).
+    \item With L2 regularization: add \(\lambda \boldsymbol{\theta}\).
   \end{itemize}
 \end{frame}
 
 \begin{frame}{Gradient Descent Update}
   \[
-    \boldsymbol{w} \leftarrow \boldsymbol{w} - \eta \nabla_{\boldsymbol{w}} \mathcal{L},
-    \quad
-    b \leftarrow b - \eta \frac{\partial \mathcal{L}}{\partial b}
+    \boldsymbol{\theta} \leftarrow \boldsymbol{\theta} - \eta \nabla_{\boldsymbol{\theta}} \mathcal{L}
   \]
   \begin{itemize}
     \item \(\eta\): learning rate.
@@ -183,13 +179,12 @@
 \begin{frame}{Gradient Descent Pseudocode (Binary)}
   \begin{algorithm}[H]
   \SetAlgoLined
-  \KwIn{Data $X$, labels $\mathbf{y} \in \{0,1\}^m$, step size $\eta$, steps $T$}
-  \KwOut{Parameters $\boldsymbol{w}, b$}
-  Initialize $\boldsymbol{w} \leftarrow 0$, $b \leftarrow 0$\;
+  \KwIn{Augmented data $\tilde{X}$, labels $\mathbf{y} \in \{0,1\}^m$, step size $\eta$, steps $T$}
+  \KwOut{Parameters $\boldsymbol{\theta}$}
+  Initialize $\boldsymbol{\theta} \leftarrow 0$\;
   \For{$t=1$ \textbf{to} $T$}{
-    $\mathbf{p} \leftarrow \sigma(X\boldsymbol{w} + b\mathbf{1})$\;
-    $\boldsymbol{w} \leftarrow \boldsymbol{w} - \eta \frac{1}{m} X^T (\mathbf{p}-\mathbf{y})$\;
-    $b \leftarrow b - \eta \frac{1}{m} \mathbf{1}^T (\mathbf{p}-\mathbf{y})$\;
+    $\mathbf{p} \leftarrow \sigma(\tilde{X}\boldsymbol{\theta})$\;
+    $\boldsymbol{\theta} \leftarrow \boldsymbol{\theta} - \eta \frac{1}{m} \tilde{X}^T (\mathbf{p}-\mathbf{y})$\;
   }
   \end{algorithm}
 \end{frame}
@@ -213,23 +208,21 @@ import numpy as np
 
 def logistic_gd(X, y, eta=0.1, steps=1000):
     m, n = X.shape
-    w = np.zeros(n)
-    b = 0.0
+    Xb = np.c_[np.ones(m), X]
+    theta = np.zeros(n + 1)
     for _ in range(steps):
-        scores = X @ w + b
+        scores = Xb @ theta
         p = 1.0 / (1.0 + np.exp(-scores))
-        grad_w = (1/m) * (X.T @ (p - y))
-        grad_b = (1/m) * np.sum(p - y)
-        w -= eta * grad_w
-        b -= eta * grad_b
-    return w, b
+        grad = (1/m) * (Xb.T @ (p - y))
+        theta -= eta * grad
+    return theta
 \end{verbatim}
 \end{frame}
 
 \begin{frame}{Prediction and Probabilities}
   Logistic regression outputs:
   \[
-    P(y=1 \mid \mathbf{x}) = \sigma(\boldsymbol{w}^T \mathbf{x} + b)
+    P(y=1 \mid \tilde{\mathbf{x}}) = \sigma(\boldsymbol{\theta}^T \tilde{\mathbf{x}})
   \]
   where \(\sigma(t) = 1/(1+e^{-t})\).
   \begin{itemize}
@@ -360,9 +353,10 @@ def softmax_gd(X, Y, eta=0.1, steps=500):
   \begin{itemize}
     \item Linear in parameters does not imply linear in inputs.
     \item Use feature maps \(\boldsymbol{\phi}(\mathbf{x})\) to capture nonlinearity.
+    \item Augment with bias: \(\tilde{\boldsymbol{\phi}}(\mathbf{x}) = [1, \boldsymbol{\phi}(\mathbf{x})]^T\).
   \end{itemize}
   \[
-    \hat{y} = \mathbf{1}[\boldsymbol{w}^T \boldsymbol{\phi}(\mathbf{x}) + b \ge 0]
+    \hat{y} = \mathbf{1}[\boldsymbol{\theta}^T \tilde{\boldsymbol{\phi}}(\mathbf{x}) \ge 0]
   \]
 \end{frame}
 
@@ -372,6 +366,21 @@ def softmax_gd(X, Y, eta=0.1, steps=500):
     \item Using 0--1 loss directly (non-optimizable).
     \item Ignoring class imbalance (bias in predictions).
   \end{itemize}
+\end{frame}
+
+\begin{frame}{Handling Class Imbalance}
+  Common strategies:
+  \begin{itemize}
+    \item Re-weight the loss: use class weights in NLL.
+    \item Resampling: oversample minority or undersample majority.
+    \item Adjust threshold using validation data.
+  \end{itemize}
+  Weighted NLL example:
+  \[
+    \mathcal{L}(\boldsymbol{\theta}) =
+    \frac{1}{m}\sum_{i=1}^m
+    \left[-\alpha\, y^{(i)} \log p^{(i)} - \beta\,(1-y^{(i)})\log(1-p^{(i)})\right]
+  \]
 \end{frame}
 
 \begin{frame}{Summary}
