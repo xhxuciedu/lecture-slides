@@ -660,7 +660,39 @@ def hinge_loss(y: int, s: float) -> float:
     return max(0.0, 1 - y * s)
 \end{lstlisting}
 
-\section*{28. Scaled Dot-Product Attention Score}
+\section*{28. One Gradient Descent Step with Hinge Loss}
+For one data point \texttt{(x, y)} with \texttt{y} in \(\{-1, +1\}\), perform one gradient descent update on \texttt{w} and \texttt{b} using the hinge loss \(\max(0, 1 - y \cdot (w^T x + b))\). The score is \(s = w^T x + b\). When the margin \(y s < 1\), the subgradient with respect to \texttt{w} is \(-y x\) and with respect to \texttt{b} is \(-y\); otherwise the subgradient is zero.
+
+\begin{lstlisting}
+def hinge_gradient_step(
+    x: list[float],
+    y: int,
+    w: list[float],
+    b: float,
+    lr: float
+) -> tuple[list[float], float]:
+    pass
+\end{lstlisting}
+
+\medskip
+\noindent\textbf{Solution}
+\begin{lstlisting}
+def hinge_gradient_step(
+    x: list[float],
+    y: int,
+    w: list[float],
+    b: float,
+    lr: float
+) -> tuple[list[float], float]:
+    s = sum(wi * xi for wi, xi in zip(w, x)) + b
+    if y * s >= 1:
+        return w, b
+    new_w = [wj + lr * y * xj for wj, xj in zip(w, x)]
+    new_b = b + lr * y
+    return new_w, new_b
+\end{lstlisting}
+
+\section*{29. Scaled Dot-Product Attention Score}
 Given query vector \texttt{q} and key vector \texttt{k}, compute the scaled dot-product attention score
 \[
 \frac{q \cdot k}{\sqrt{d}}
@@ -682,7 +714,7 @@ def attention_score(q: list[float], k: list[float]) -> float:
     return sum(a * b for a, b in zip(q, k)) / math.sqrt(d)
 \end{lstlisting}
 
-\section*{29. Scaled Dot-Product Attention Matrix}
+\section*{30. Scaled Dot-Product Attention Matrix}
 Given a list of query vectors \texttt{Q} and a list of key vectors \texttt{K} (each vector of dimension \texttt{d}), compute the attention matrix of shape \texttt{(n\_queries, n\_keys)}. For each query, compute scaled dot-product scores with all keys, then apply softmax over the keys so each row sums to 1:
 \[
 A_{ij} = \frac{\exp(q_i \cdot k_j / \sqrt{d})}{\sum_{j'} \exp(q_i \cdot k_{j'} / \sqrt{d})}
@@ -710,7 +742,7 @@ def attention_matrix(Q: list[list[float]], K: list[list[float]]) -> list[list[fl
     return out
 \end{lstlisting}
 
-\section*{30. Next Token Prediction}
+\section*{31. Next Token Prediction}
 Given a vector of logits over the vocabulary, return the index of the most likely next token.
 
 \begin{lstlisting}
@@ -729,9 +761,9 @@ def next_token(logits: list[float]) -> int:
 \noindent\textbf{\large Part IX: Clustering and PCA}
 \vspace{0.5em}
 
-\section*{31. Clustering / PCA Short Questions}
+\section*{32. Clustering / PCA Short Questions}
 
-\subsection*{31(a) K-Means Assignment}
+\subsection*{32(a) K-Means Assignment}
 Given a point and a list of cluster centers, return the index of the nearest center.
 
 \begin{lstlisting}
@@ -746,7 +778,7 @@ def assign_cluster(point: list[float], centers: list[list[float]]) -> int:
     return min(range(len(centers)), key=lambda i: euclidean_distance(point, centers[i]))
 \end{lstlisting}
 
-\subsection*{31(b) K-Means Center Update}
+\subsection*{32(b) K-Means Center Update}
 Given all points assigned to one cluster, return the new center as the mean point.
 
 \begin{lstlisting}
@@ -763,7 +795,7 @@ def update_center(points: list[list[float]]) -> list[float]:
     return [sum(points[i][j] for i in range(n)) / n for j in range(d)]
 \end{lstlisting}
 
-\subsection*{31(c) Gaussian Mixture Model: E-step and M-step}
+\subsection*{32(c) Gaussian Mixture Model: E-step and M-step}
 
 \textbf{E-step.} Given mixture weights \texttt{pi1}, \texttt{pi2} and the likelihoods \texttt{p1}, \texttt{p2} of one data point under each component, compute the responsibilities (soft assignments) for that point:
 \[
@@ -810,7 +842,7 @@ def gmm_m_step(X: list[float], resp: list[tuple[float, float]]) -> tuple[float, 
     return (pi1_new, pi2_new, mu1_new, mu2_new)
 \end{lstlisting}
 
-\subsection*{31(d) Mean Centering for PCA}
+\subsection*{32(d) Mean Centering for PCA}
 Given a data matrix \texttt{X}, subtract the mean of each feature column.
 
 \begin{lstlisting}
@@ -828,7 +860,7 @@ def center_data(X: list[list[float]]) -> list[list[float]]:
     return [[X[i][j] - means[j] for j in range(d)] for i in range(n)]
 \end{lstlisting}
 
-\subsection*{31(e) PCA via Eigenvalue Decomposition in NumPy}
+\subsection*{32(e) PCA via Eigenvalue Decomposition in NumPy}
 Given a mean-centered data matrix \texttt{X} as a NumPy array of shape \texttt{(n, d)}, compute the first principal component, that is, the eigenvector corresponding to the largest eigenvalue of the covariance matrix.
 
 \begin{lstlisting}
