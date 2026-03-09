@@ -682,7 +682,35 @@ def attention_score(q: list[float], k: list[float]) -> float:
     return sum(a * b for a, b in zip(q, k)) / math.sqrt(d)
 \end{lstlisting}
 
-\section*{29. Next Token Prediction}
+\section*{29. Scaled Dot-Product Attention Matrix}
+Given a list of query vectors \texttt{Q} and a list of key vectors \texttt{K} (each vector of dimension \texttt{d}), compute the attention matrix of shape \texttt{(n\_queries, n\_keys)}. For each query, compute scaled dot-product scores with all keys, then apply softmax over the keys so each row sums to 1:
+\[
+A_{ij} = \frac{\exp(q_i \cdot k_j / \sqrt{d})}{\sum_{j'} \exp(q_i \cdot k_{j'} / \sqrt{d})}
+\]
+
+\begin{lstlisting}
+def attention_matrix(Q: list[list[float]], K: list[list[float]]) -> list[list[float]]:
+    pass
+\end{lstlisting}
+
+\medskip
+\noindent\textbf{Solution}
+\begin{lstlisting}
+import math
+
+def attention_matrix(Q: list[list[float]], K: list[list[float]]) -> list[list[float]]:
+    d = len(Q[0])
+    scale = math.sqrt(d)
+    out = []
+    for q in Q:
+        scores = [sum(qi * kj for qi, kj in zip(q, k)) / scale for k in K]
+        exps = [math.exp(s) for s in scores]
+        total = sum(exps)
+        out.append([e / total for e in exps])
+    return out
+\end{lstlisting}
+
+\section*{30. Next Token Prediction}
 Given a vector of logits over the vocabulary, return the index of the most likely next token.
 
 \begin{lstlisting}
@@ -701,9 +729,9 @@ def next_token(logits: list[float]) -> int:
 \noindent\textbf{\large Part IX: Clustering and PCA}
 \vspace{0.5em}
 
-\section*{30. Clustering / PCA Short Questions}
+\section*{31. Clustering / PCA Short Questions}
 
-\subsection*{30(a) K-Means Assignment}
+\subsection*{31(a) K-Means Assignment}
 Given a point and a list of cluster centers, return the index of the nearest center.
 
 \begin{lstlisting}
@@ -718,7 +746,7 @@ def assign_cluster(point: list[float], centers: list[list[float]]) -> int:
     return min(range(len(centers)), key=lambda i: euclidean_distance(point, centers[i]))
 \end{lstlisting}
 
-\subsection*{30(b) K-Means Center Update}
+\subsection*{31(b) K-Means Center Update}
 Given all points assigned to one cluster, return the new center as the mean point.
 
 \begin{lstlisting}
@@ -735,25 +763,54 @@ def update_center(points: list[list[float]]) -> list[float]:
     return [sum(points[i][j] for i in range(n)) / n for j in range(d)]
 \end{lstlisting}
 
-\subsection*{30(c) Gaussian Mixture Responsibility}
-Given two prior probabilities \texttt{pi1}, \texttt{pi2} and two likelihoods \texttt{p1}, \texttt{p2}, compute the responsibility of component 1:
+\subsection*{31(c) Gaussian Mixture Model: E-step and M-step}
+
+\textbf{E-step.} Given mixture weights \texttt{pi1}, \texttt{pi2} and the likelihoods \texttt{p1}, \texttt{p2} of one data point under each component, compute the responsibilities (soft assignments) for that point:
 \[
-\gamma_1 = \frac{\pi_1 p_1}{\pi_1 p_1 + \pi_2 p_2}
+\gamma_1 = \frac{\pi_1 p_1}{\pi_1 p_1 + \pi_2 p_2}, \qquad \gamma_2 = 1 - \gamma_1.
 \]
+Return \texttt{($\gamma_1$, $\gamma_2$)}.
 
 \begin{lstlisting}
-def responsibility(pi1: float, p1: float, pi2: float, p2: float) -> float:
+def gmm_e_step(pi1: float, p1: float, pi2: float, p2: float) -> tuple[float, float]:
     pass
 \end{lstlisting}
 
 \medskip
 \noindent\textbf{Solution}
 \begin{lstlisting}
-def responsibility(pi1: float, p1: float, pi2: float, p2: float) -> float:
-    return (pi1 * p1) / (pi1 * p1 + pi2 * p2)
+def gmm_e_step(pi1: float, p1: float, pi2: float, p2: float) -> tuple[float, float]:
+    denom = pi1 * p1 + pi2 * p2
+    return (pi1 * p1 / denom, pi2 * p2 / denom)
 \end{lstlisting}
 
-\subsection*{30(d) Mean Centering for PCA}
+\textbf{M-step.} Given 1D data \texttt{X} and a list of responsibilities \texttt{resp} (each \texttt{resp[i]} is \texttt{($\gamma_{i1}$, $\gamma_{i2}$)} for point \texttt{X[i]}), compute the new mixture weights and component means:
+\[
+\pi_k = \frac{1}{n}\sum_{i=1}^n \gamma_{ik}, \qquad \mu_k = \frac{\sum_{i=1}^n \gamma_{ik} x_i}{\sum_{i=1}^n \gamma_{ik}}.
+\]
+Return \texttt{(pi1\_new, pi2\_new, mu1\_new, mu2\_new)}.
+
+\begin{lstlisting}
+def gmm_m_step(X: list[float], resp: list[tuple[float, float]]) -> tuple[float, float, float, float]:
+    pass
+\end{lstlisting}
+
+\medskip
+\noindent\textbf{Solution}
+\begin{lstlisting}
+def gmm_m_step(X: list[float], resp: list[tuple[float, float]]) -> tuple[float, float, float, float]:
+    n = len(X)
+    g1 = [r[0] for r in resp]
+    g2 = [r[1] for r in resp]
+    n1, n2 = sum(g1), sum(g2)
+    pi1_new = n1 / n
+    pi2_new = n2 / n
+    mu1_new = sum(g1[i] * X[i] for i in range(n)) / n1 if n1 > 0 else 0.0
+    mu2_new = sum(g2[i] * X[i] for i in range(n)) / n2 if n2 > 0 else 0.0
+    return (pi1_new, pi2_new, mu1_new, mu2_new)
+\end{lstlisting}
+
+\subsection*{31(d) Mean Centering for PCA}
 Given a data matrix \texttt{X}, subtract the mean of each feature column.
 
 \begin{lstlisting}
@@ -771,7 +828,7 @@ def center_data(X: list[list[float]]) -> list[list[float]]:
     return [[X[i][j] - means[j] for j in range(d)] for i in range(n)]
 \end{lstlisting}
 
-\subsection*{30(e) PCA via Eigenvalue Decomposition in NumPy}
+\subsection*{31(e) PCA via Eigenvalue Decomposition in NumPy}
 Given a mean-centered data matrix \texttt{X} as a NumPy array of shape \texttt{(n, d)}, compute the first principal component, that is, the eigenvector corresponding to the largest eigenvalue of the covariance matrix.
 
 \begin{lstlisting}
