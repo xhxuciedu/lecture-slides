@@ -1,0 +1,794 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{enumitem}
+\usepackage{parskip}
+\usepackage{hyperref}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    urlcolor=blue,
+    citecolor=blue
+}
+
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{teal},
+    stringstyle=\color{red!60!black},
+    showstringspaces=false,
+    columns=fullflexible,
+    keepspaces=true,
+    frame=single,
+    breaklines=true,
+    aboveskip=0.5em,
+    belowskip=0.5em
+}
+
+\title{CS273P Machine Learning\\Final Exam Practice Problems}
+\date{}
+\author{}
+
+\begin{document}
+
+\maketitle
+
+\begin{center}
+\fbox{\parbox{0.9\textwidth}{%
+\centering
+\textbf{Overview.} This handout contains sample coding questions similar to those you may see on the final exam. Each problem includes a solution. Try solving each on your own before reading the solution.
+}}
+\end{center}
+
+\vspace{1em}
+
+\noindent\textbf{Instructions}
+\begin{itemize}[leftmargin=1.5em]
+    \item Write your solutions in Python.
+    \item You may use \texttt{numpy} and \texttt{math}.
+    \item Unless otherwise stated, aim for concise implementations.
+    \item Most problems are designed to require only a few lines of code.
+    \item You may assume inputs are valid (e.g., non-empty lists, compatible dimensions).
+\end{itemize}
+
+\vspace{1.5em}
+\hrule
+\vspace{1em}
+
+\noindent\textbf{\large Part I: K-Nearest Neighbors}
+\vspace{0.5em}
+
+\section*{1. Euclidean Distance}
+Write a function that computes the Euclidean distance between two 1D vectors.
+
+\begin{lstlisting}
+def euclidean_distance(x: list[float], y: list[float]) -> float:
+    pass
+\end{lstlisting}
+
+\medskip
+\noindent\textbf{Solution}
+\begin{lstlisting}
+import math
+
+def euclidean_distance(x: list[float], y: list[float]) -> float:
+    return math.sqrt(sum((a - b) ** 2 for a, b in zip(x, y)))
+\end{lstlisting}
+
+\section*{2. Nearest Neighbor}
+Given a query vector and a list of training vectors, return the index of the nearest training example using Euclidean distance.
+
+\begin{lstlisting}
+def nearest_neighbor(X_train: list[list[float]], query: list[float]) -> int:
+    pass
+\end{lstlisting}
+
+\medskip
+\noindent\textbf{Solution}
+\begin{lstlisting}
+def nearest_neighbor(X_train: list[list[float]], query: list[float]) -> int:
+    return min(range(len(X_train)), key=lambda i: euclidean_distance(X_train[i], query))
+\end{lstlisting}
+
+\section*{3. k Nearest Neighbor Indices}
+Return the indices of the \texttt{k} nearest training examples to a query point, ordered from nearest to farthest.
+
+\begin{lstlisting}
+def knn_indices(X_train: list[list[float]], query: list[float], k: int) -> list[int]:
+    pass
+\end{lstlisting}
+
+\medskip
+\noindent\textbf{Solution}
+\begin{lstlisting}
+def knn_indices(X_train: list[list[float]], query: list[float], k: int) -> list[int]:
+    return sorted(range(len(X_train)), key=lambda i: euclidean_distance(X_train[i], query))[:k]
+\end{lstlisting}
+
+\section*{4. KNN Majority Vote}
+Given training data, binary labels, a query point, and \texttt{k}, predict the label (0 or 1) using majority vote among the \texttt{k} nearest neighbors.
+
+\begin{lstlisting}
+def knn_predict(X_train: list[list[float]], y_train: list[int], query: list[float], k: int) -> int:
+    pass
+\end{lstlisting}
+
+\medskip
+\noindent\textbf{Solution}
+\begin{lstlisting}
+def knn_predict(X_train: list[list[float]], y_train: list[int], query: list[float], k: int) -> int:
+    idx = knn_indices(X_train, query, k)
+    votes = sum(y_train[i] for i in idx)
+    return 1 if votes >= k - votes else 0
+\end{lstlisting}
+
+\vspace{0.75em}
+\noindent\textbf{\large Part II: Naive Bayes}
+\vspace{0.5em}
+
+\section*{5. Class Priors}
+Given a list of class labels, compute the prior probability of each class and return a dictionary.
+
+\begin{lstlisting}
+def class_priors(y: list[int]) -> dict[int, float]:
+    pass
+\end{lstlisting}
+
+\medskip
+\noindent\textbf{Solution}
+\begin{lstlisting}
+def class_priors(y: list[int]) -> dict[int, float]:
+    out = {}
+    n = len(y)
+    for c in y:
+        out[c] = out.get(c, 0) + 1
+    for c in out:
+        out[c] /= n
+    return out
+\end{lstlisting}
+
+\section*{6. Bernoulli Naive Bayes Feature Probability}
+Assume binary features and class labels. Compute
+\[
+P(x_j = 1 \mid y = c)
+\]
+for feature index \texttt{j} and class \texttt{c}. Assume at least one training example has class \texttt{c}.
+
+\begin{lstlisting}
+def bernoulli_feature_prob(X: list[list[int]], y: list[int], j: int, c: int) -> float:
+    pass
+\end{lstlisting}
+
+\medskip
+\noindent\textbf{Solution}
+\begin{lstlisting}
+def bernoulli_feature_prob(X: list[list[int]], y: list[int], j: int, c: int) -> float:
+    vals = [X[i][j] for i in range(len(y)) if y[i] == c]
+    return sum(vals) / len(vals)
+\end{lstlisting}
+
+\section*{7. Naive Bayes Log Score}
+Given a binary input vector \texttt{x}, class prior \texttt{p\_y}, and Bernoulli probabilities \texttt{p\_x\_given\_y}, compute the Naive Bayes log score up to a constant.
+
+\begin{lstlisting}
+def nb_log_score(x: list[int], p_y: float, p_x_given_y: list[float]) -> float:
+    pass
+\end{lstlisting}
+
+\medskip
+\noindent\textbf{Solution}
+\begin{lstlisting}
+import math
+
+def nb_log_score(x: list[int], p_y: float, p_x_given_y: list[float]) -> float:
+    s = math.log(p_y)
+    for xj, pj in zip(x, p_x_given_y):
+        s += math.log(pj) if xj == 1 else math.log(1 - pj)
+    return s
+\end{lstlisting}
+
+\section*{8. Naive Bayes Prediction from Scores}
+Given the log scores for two classes, return the predicted class.
+
+\begin{lstlisting}
+def predict_from_scores(score0: float, score1: float) -> int:
+    pass
+\end{lstlisting}
+
+\medskip
+\noindent\textbf{Solution}
+\begin{lstlisting}
+def predict_from_scores(score0: float, score1: float) -> int:
+    return 1 if score1 > score0 else 0
+\end{lstlisting}
+
+\vspace{0.75em}
+\noindent\textbf{\large Part III: Linear Regression}
+\vspace{0.5em}
+
+\section*{9. Mean Squared Error}
+Compute the mean squared error between \texttt{y\_true} and \texttt{y\_pred}.
+
+\begin{lstlisting}
+def mse_loss(y_true: list[float], y_pred: list[float]) -> float:
+    pass
+\end{lstlisting}
+
+\medskip
+\noindent\textbf{Solution}
+\begin{lstlisting}
+def mse_loss(y_true: list[float], y_pred: list[float]) -> float:
+    n = len(y_true)
+    return sum((a - b) ** 2 for a, b in zip(y_true, y_pred)) / n
+\end{lstlisting}
+
+\section*{10. Linear Regression Prediction}
+Given \texttt{x}, weight vector \texttt{w}, and bias \texttt{b}, compute the linear regression prediction
+\[
+\hat{y} = w^T x + b
+\]
+
+\begin{lstlisting}
+def linear_predict(x: list[float], w: list[float], b: float) -> float:
+    pass
+\end{lstlisting}
+
+\medskip
+\noindent\textbf{Solution}
+\begin{lstlisting}
+def linear_predict(x: list[float], w: list[float], b: float) -> float:
+    return sum(xj * wj for xj, wj in zip(x, w)) + b
+\end{lstlisting}
+
+\section*{11. One Gradient Descent Step for Linear Regression}
+For one data point \texttt{(x, y)}, perform one gradient descent update for \texttt{w} and \texttt{b} using squared loss.
+
+\begin{lstlisting}
+def linear_regression_step(
+    x: list[float],
+    y: float,
+    w: list[float],
+    b: float,
+    lr: float
+) -> tuple[list[float], float]:
+    pass
+\end{lstlisting}
+
+\medskip
+\noindent\textbf{Solution}
+\begin{lstlisting}
+def linear_regression_step(
+    x: list[float],
+    y: float,
+    w: list[float],
+    b: float,
+    lr: float
+) -> tuple[list[float], float]:
+    y_hat = linear_predict(x, w, b)
+    err = y_hat - y
+    new_w = [wj - lr * 2 * err * xj for wj, xj in zip(w, x)]
+    new_b = b - lr * 2 * err
+    return new_w, new_b
+\end{lstlisting}
+
+\section*{12. Batch Gradient for Linear Regression}
+Given a dataset \texttt{(X, y)}, compute the gradient of mean squared error with respect to \texttt{w} and \texttt{b}.
+
+\begin{lstlisting}
+def linear_regression_gradient(
+    X: list[list[float]],
+    y: list[float],
+    w: list[float],
+    b: float
+) -> tuple[list[float], float]:
+    pass
+\end{lstlisting}
+
+\medskip
+\noindent\textbf{Solution}
+\begin{lstlisting}
+def linear_regression_gradient(
+    X: list[list[float]],
+    y: list[float],
+    w: list[float],
+    b: float
+) -> tuple[list[float], float]:
+    n = len(X)
+    d = len(w)
+    grad_w = [0.0] * d
+    grad_b = 0.0
+
+    for xi, yi in zip(X, y):
+        err = linear_predict(xi, w, b) - yi
+        for j in range(d):
+            grad_w[j] += 2 * err * xi[j] / n
+        grad_b += 2 * err / n
+
+    return grad_w, grad_b
+\end{lstlisting}
+
+\vspace{0.75em}
+\noindent\textbf{\large Part IV: Logistic Regression}
+\vspace{0.5em}
+
+\section*{13. Sigmoid}
+Implement the sigmoid function
+\[
+\sigma(z) = \frac{1}{1 + e^{-z}}
+\]
+
+\begin{lstlisting}
+def sigmoid(z: float) -> float:
+    pass
+\end{lstlisting}
+
+\medskip
+\noindent\textbf{Solution}
+\begin{lstlisting}
+import math
+
+def sigmoid(z: float) -> float:
+    return 1 / (1 + math.exp(-z))
+\end{lstlisting}
+
+\section*{14. Binary Negative Log Likelihood}
+For binary label \texttt{y} in \(\{0, 1\}\) and predicted probability \texttt{p} (in \((0, 1)\)), compute the negative log likelihood (cross-entropy)
+\[
+-\bigl(y \log p + (1-y)\log(1-p)\bigr).
+\]
+
+\begin{lstlisting}
+def binary_nll(y: int, p: float) -> float:
+    pass
+\end{lstlisting}
+
+\medskip
+\noindent\textbf{Solution}
+\begin{lstlisting}
+import math
+
+def binary_nll(y: int, p: float) -> float:
+    return -(y * math.log(p) + (1 - y) * math.log(1 - p))
+\end{lstlisting}
+
+\section*{15. Logistic Regression Probability}
+Given \texttt{x}, \texttt{w}, and \texttt{b}, compute
+\[
+P(y=1 \mid x) = \sigma(w^T x + b)
+\]
+
+\begin{lstlisting}
+def logistic_predict_prob(x: list[float], w: list[float], b: float) -> float:
+    pass
+\end{lstlisting}
+
+\medskip
+\noindent\textbf{Solution}
+\begin{lstlisting}
+def logistic_predict_prob(x: list[float], w: list[float], b: float) -> float:
+    z = sum(xj * wj for xj, wj in zip(x, w)) + b
+    return sigmoid(z)
+\end{lstlisting}
+
+\section*{16. Logistic Regression Gradient}
+For one data point \texttt{(x, y)}, compute the gradient of binary negative log likelihood with respect to \texttt{w} and \texttt{b}.
+
+\begin{lstlisting}
+def logistic_gradient(
+    x: list[float],
+    y: int,
+    w: list[float],
+    b: float
+) -> tuple[list[float], float]:
+    pass
+\end{lstlisting}
+
+\medskip
+\noindent\textbf{Solution}
+\begin{lstlisting}
+def logistic_gradient(
+    x: list[float],
+    y: int,
+    w: list[float],
+    b: float
+) -> tuple[list[float], float]:
+    p = logistic_predict_prob(x, w, b)
+    grad_w = [(p - y) * xj for xj in x]
+    grad_b = p - y
+    return grad_w, grad_b
+\end{lstlisting}
+
+\vspace{0.75em}
+\noindent\textbf{\large Part V: Multiclass Classification}
+\vspace{0.5em}
+
+\section*{17. Softmax}
+Given a list of logits, return the softmax probabilities.
+
+\begin{lstlisting}
+def softmax(logits: list[float]) -> list[float]:
+    pass
+\end{lstlisting}
+
+\medskip
+\noindent\textbf{Solution}
+\begin{lstlisting}
+import math
+
+def softmax(logits: list[float]) -> list[float]:
+    exps = [math.exp(z) for z in logits]
+    s = sum(exps)
+    return [e / s for e in exps]
+\end{lstlisting}
+
+\section*{18. Multiclass Negative Log Likelihood}
+Given a vector of class probabilities and the correct class index \texttt{y}, compute
+\[
+-\log p_y
+\]
+
+\begin{lstlisting}
+def multiclass_nll(probs: list[float], y: int) -> float:
+    pass
+\end{lstlisting}
+
+\medskip
+\noindent\textbf{Solution}
+\begin{lstlisting}
+import math
+
+def multiclass_nll(probs: list[float], y: int) -> float:
+    return -math.log(probs[y])
+\end{lstlisting}
+
+\section*{19. Predict Class from Logits}
+Given a list of logits, return the predicted class index.
+
+\begin{lstlisting}
+def predict_class(logits: list[float]) -> int:
+    pass
+\end{lstlisting}
+
+\medskip
+\noindent\textbf{Solution}
+\begin{lstlisting}
+def predict_class(logits: list[float]) -> int:
+    return max(range(len(logits)), key=lambda i: logits[i])
+\end{lstlisting}
+
+\vspace{0.75em}
+\noindent\textbf{\large Part VI: Regularization}
+\vspace{0.5em}
+
+\section*{20. L2 Regularization Penalty}
+Given a weight vector \texttt{w}, compute the L2 penalty
+\[
+\sum_j w_j^2
+\]
+
+\begin{lstlisting}
+def l2_penalty(w: list[float]) -> float:
+    pass
+\end{lstlisting}
+
+\medskip
+\noindent\textbf{Solution}
+\begin{lstlisting}
+def l2_penalty(w: list[float]) -> float:
+    return sum(wj ** 2 for wj in w)
+\end{lstlisting}
+
+\section*{21. L1 Regularization Penalty}
+Given a weight vector \texttt{w}, compute the L1 penalty
+\[
+\sum_j |w_j|
+\]
+
+\begin{lstlisting}
+def l1_penalty(w: list[float]) -> float:
+    pass
+\end{lstlisting}
+
+\medskip
+\noindent\textbf{Solution}
+\begin{lstlisting}
+def l1_penalty(w: list[float]) -> float:
+    return sum(abs(wj) for wj in w)
+\end{lstlisting}
+
+\vspace{0.75em}
+\noindent\textbf{\large Part VII: Neural Networks}
+\vspace{0.5em}
+
+\section*{22. ReLU Activation}
+Apply ReLU elementwise to a vector.
+
+\begin{lstlisting}
+def relu(x: list[float]) -> list[float]:
+    pass
+\end{lstlisting}
+
+\medskip
+\noindent\textbf{Solution}
+\begin{lstlisting}
+def relu(x: list[float]) -> list[float]:
+    return [max(0, v) for v in x]
+\end{lstlisting}
+
+\section*{23. Dense Layer Forward Pass}
+Given input vector \texttt{x}, weight matrix \texttt{W}, and bias vector \texttt{b}, compute the output of a fully connected layer:
+\[
+Wx + b
+\]
+Assume \texttt{W[i]} is the weight row for output neuron \texttt{i}.
+
+\begin{lstlisting}
+def dense_forward(x: list[float], W: list[list[float]], b: list[float]) -> list[float]:
+    pass
+\end{lstlisting}
+
+\medskip
+\noindent\textbf{Solution}
+\begin{lstlisting}
+def dense_forward(x: list[float], W: list[list[float]], b: list[float]) -> list[float]:
+    return [sum(wij * xj for wij, xj in zip(row, x)) + bi for row, bi in zip(W, b)]
+\end{lstlisting}
+
+\section*{24. 2D Valid Convolution}
+Given a 2D image and a 2D kernel, compute the valid convolution output with stride 1 and no padding.
+
+\begin{lstlisting}
+def conv2d_valid(image: list[list[float]], kernel: list[list[float]]) -> list[list[float]]:
+    pass
+\end{lstlisting}
+
+\medskip
+\noindent\textbf{Solution}
+\begin{lstlisting}
+def conv2d_valid(image: list[list[float]], kernel: list[list[float]]) -> list[list[float]]:
+    h, w = len(image), len(image[0])
+    kh, kw = len(kernel), len(kernel[0])
+    out = []
+
+    for i in range(h - kh + 1):
+        row = []
+        for j in range(w - kw + 1):
+            s = 0
+            for a in range(kh):
+                for b in range(kw):
+                    s += image[i + a][j + b] * kernel[a][b]
+            row.append(s)
+        out.append(row)
+
+    return out
+\end{lstlisting}
+
+\section*{25. 2x2 Max Pooling}
+Given a 2D feature map, perform 2x2 max pooling with stride 2. Assume height and width are even.
+
+\begin{lstlisting}
+def max_pool_2x2(feature_map: list[list[float]]) -> list[list[float]]:
+    pass
+\end{lstlisting}
+
+\medskip
+\noindent\textbf{Solution}
+\begin{lstlisting}
+def max_pool_2x2(feature_map: list[list[float]]) -> list[list[float]]:
+    h, w = len(feature_map), len(feature_map[0])
+    out = []
+
+    for i in range(0, h, 2):
+        row = []
+        for j in range(0, w, 2):
+            block = [
+                feature_map[i][j],
+                feature_map[i][j + 1],
+                feature_map[i + 1][j],
+                feature_map[i + 1][j + 1],
+            ]
+            row.append(max(block))
+        out.append(row)
+
+    return out
+\end{lstlisting}
+
+\vspace{0.75em}
+\noindent\textbf{\large Part VIII: RNNs, SVMs, and Transformers}
+\vspace{0.5em}
+
+\section*{26. One RNN Hidden-State Update}
+Given input vector \texttt{x}, previous hidden state \texttt{h\_prev}, weight matrices \texttt{Wx}, \texttt{Wh}, and bias \texttt{b}, compute one RNN hidden-state update using
+\[
+h = \tanh(W_x x + W_h h_{prev} + b)
+\]
+
+\begin{lstlisting}
+def rnn_step(
+    x: list[float],
+    h_prev: list[float],
+    Wx: list[list[float]],
+    Wh: list[list[float]],
+    b: list[float]
+) -> list[float]:
+    pass
+\end{lstlisting}
+
+\medskip
+\noindent\textbf{Solution}
+\begin{lstlisting}
+import math
+
+def rnn_step(
+    x: list[float],
+    h_prev: list[float],
+    Wx: list[list[float]],
+    Wh: list[list[float]],
+    b: list[float]
+) -> list[float]:
+    out = []
+    for i in range(len(b)):
+        s = b[i]
+        s += sum(Wx[i][j] * x[j] for j in range(len(x)))
+        s += sum(Wh[i][j] * h_prev[j] for j in range(len(h_prev)))
+        out.append(math.tanh(s))
+    return out
+\end{lstlisting}
+
+\section*{27. Hinge Loss}
+For binary classification with label \texttt{y} in \(\{-1, +1\}\) and model score \texttt{s}, compute the hinge loss
+\[
+\max(0, 1 - y s)
+\]
+
+\begin{lstlisting}
+def hinge_loss(y: int, s: float) -> float:
+    pass
+\end{lstlisting}
+
+\medskip
+\noindent\textbf{Solution}
+\begin{lstlisting}
+def hinge_loss(y: int, s: float) -> float:
+    return max(0.0, 1 - y * s)
+\end{lstlisting}
+
+\section*{28. Scaled Dot-Product Attention Score}
+Given query vector \texttt{q} and key vector \texttt{k}, compute the scaled dot-product attention score
+\[
+\frac{q \cdot k}{\sqrt{d}}
+\]
+where \texttt{d} is the vector dimension.
+
+\begin{lstlisting}
+def attention_score(q: list[float], k: list[float]) -> float:
+    pass
+\end{lstlisting}
+
+\medskip
+\noindent\textbf{Solution}
+\begin{lstlisting}
+import math
+
+def attention_score(q: list[float], k: list[float]) -> float:
+    d = len(q)
+    return sum(a * b for a, b in zip(q, k)) / math.sqrt(d)
+\end{lstlisting}
+
+\section*{29. Next Token Prediction}
+Given a vector of logits over the vocabulary, return the index of the most likely next token.
+
+\begin{lstlisting}
+def next_token(logits: list[float]) -> int:
+    pass
+\end{lstlisting}
+
+\medskip
+\noindent\textbf{Solution}
+\begin{lstlisting}
+def next_token(logits: list[float]) -> int:
+    return max(range(len(logits)), key=lambda i: logits[i])
+\end{lstlisting}
+
+\vspace{0.75em}
+\noindent\textbf{\large Part IX: Clustering and PCA}
+\vspace{0.5em}
+
+\section*{30. Clustering / PCA Short Questions}
+
+\subsection*{30(a) K-Means Assignment}
+Given a point and a list of cluster centers, return the index of the nearest center.
+
+\begin{lstlisting}
+def assign_cluster(point: list[float], centers: list[list[float]]) -> int:
+    pass
+\end{lstlisting}
+
+\medskip
+\noindent\textbf{Solution}
+\begin{lstlisting}
+def assign_cluster(point: list[float], centers: list[list[float]]) -> int:
+    return min(range(len(centers)), key=lambda i: euclidean_distance(point, centers[i]))
+\end{lstlisting}
+
+\subsection*{30(b) K-Means Center Update}
+Given all points assigned to one cluster, return the new center as the mean point.
+
+\begin{lstlisting}
+def update_center(points: list[list[float]]) -> list[float]:
+    pass
+\end{lstlisting}
+
+\medskip
+\noindent\textbf{Solution}
+\begin{lstlisting}
+def update_center(points: list[list[float]]) -> list[float]:
+    n = len(points)
+    d = len(points[0])
+    return [sum(points[i][j] for i in range(n)) / n for j in range(d)]
+\end{lstlisting}
+
+\subsection*{30(c) Gaussian Mixture Responsibility}
+Given two prior probabilities \texttt{pi1}, \texttt{pi2} and two likelihoods \texttt{p1}, \texttt{p2}, compute the responsibility of component 1:
+\[
+\gamma_1 = \frac{\pi_1 p_1}{\pi_1 p_1 + \pi_2 p_2}
+\]
+
+\begin{lstlisting}
+def responsibility(pi1: float, p1: float, pi2: float, p2: float) -> float:
+    pass
+\end{lstlisting}
+
+\medskip
+\noindent\textbf{Solution}
+\begin{lstlisting}
+def responsibility(pi1: float, p1: float, pi2: float, p2: float) -> float:
+    return (pi1 * p1) / (pi1 * p1 + pi2 * p2)
+\end{lstlisting}
+
+\subsection*{30(d) Mean Centering for PCA}
+Given a data matrix \texttt{X}, subtract the mean of each feature column.
+
+\begin{lstlisting}
+def center_data(X: list[list[float]]) -> list[list[float]]:
+    pass
+\end{lstlisting}
+
+\medskip
+\noindent\textbf{Solution}
+\begin{lstlisting}
+def center_data(X: list[list[float]]) -> list[list[float]]:
+    n = len(X)
+    d = len(X[0])
+    means = [sum(X[i][j] for i in range(n)) / n for j in range(d)]
+    return [[X[i][j] - means[j] for j in range(d)] for i in range(n)]
+\end{lstlisting}
+
+\subsection*{30(e) PCA via Eigenvalue Decomposition in NumPy}
+Given a mean-centered data matrix \texttt{X} as a NumPy array of shape \texttt{(n, d)}, compute the first principal component, that is, the eigenvector corresponding to the largest eigenvalue of the covariance matrix.
+
+\begin{lstlisting}
+def first_principal_component(X):
+    pass
+\end{lstlisting}
+
+\medskip
+\noindent\textbf{Solution}
+\begin{lstlisting}
+import numpy as np
+
+def first_principal_component(X):
+    C = np.cov(X, rowvar=False)
+    eigvals, eigvecs = np.linalg.eig(C)
+    idx = np.argmax(np.real(eigvals))
+    return np.real(eigvecs[:, idx])
+\end{lstlisting}
+
+\end{document}
