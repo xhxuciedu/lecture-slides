@@ -647,6 +647,51 @@ What is the main role of the KL term?
     \item The point in the cluster with largest norm
 \end{enumerate}
 
+\item In a Gaussian mixture model with parameters $\theta = \{\pi_k, \mu_k, \Sigma_k\}_{k=1}^K$, the marginal log-likelihood for one data point $x$ is
+\[
+\log p(x) = \log \sum_{k=1}^K \pi_k \, \mathcal{N}(x \mid \mu_k, \Sigma_k).
+\]
+Why is the EM algorithm useful for maximizing this objective?
+
+\begin{enumerate}[label=\Alph*.]
+    \item Because the logarithm turns the sum over mixture components into a product
+    \item Because introducing latent component indicators makes the complete-data log-likelihood easier to optimize \cmark
+    \item Because EM always finds the global maximum of the likelihood
+    \item Because the Gaussian covariance matrices do not need to be estimated
+\end{enumerate}
+
+\item Let $q(z)$ be any distribution over the latent variable $z$ in a latent-variable model. The evidence lower bound (ELBO) for $\log p(x)$ is
+\[
+\mathrm{ELBO}(q) = \mathbb{E}_{q(z)}[\log p(x,z)] - \mathbb{E}_{q(z)}[\log q(z)].
+\]
+Which identity is correct?
+
+\begin{enumerate}[label=\Alph*.]
+    \item $\log p(x) = \mathrm{ELBO}(q) - \mathrm{KL}(q(z)\|p(z|x))$
+    \item $\log p(x) = \mathrm{ELBO}(q) + \mathrm{KL}(q(z)\|p(z|x))$ \cmark
+    \item $\log p(x) = \mathrm{ELBO}(q) + \mathrm{KL}(p(z|x)\|q(z))$
+    \item $\log p(x) = \mathrm{KL}(q(z)\|p(z|x)) - \mathrm{ELBO}(q)$
+\end{enumerate}
+
+\item Consider a two-layer neural network for one training example:
+\[
+z_1 = W_1 x + b_1,\qquad a_1 = \mathrm{ReLU}(z_1),
+\]
+\[
+z_2 = W_2 a_1 + b_2,\qquad \hat y = z_2,
+\]
+and the loss is
+\[
+L = \frac{1}{2}\|\hat y - y\|_2^2.
+\]
+Which expression is correct for the gradient of the loss with respect to $W_1$?
+
+\begin{enumerate}[label=\Alph*.]
+    \item \(\displaystyle \frac{\partial L}{\partial W_1} = (\hat y - y)x^T\)
+    \item \(\displaystyle \frac{\partial L}{\partial W_1} = \bigl(W_2^T(\hat y-y)\odot \mathbf{1}_{z_1>0}\bigr)x^T\) \cmark
+    \item \(\displaystyle \frac{\partial L}{\partial W_1} = W_1^T(\hat y-y)\)
+    \item \(\displaystyle \frac{\partial L}{\partial W_1} = \bigl((\hat y-y)\odot \mathbf{1}_{z_1>0}\bigr)x^T\)
+\end{enumerate}
 
 
 \end{enumerate}
