@@ -394,7 +394,7 @@ a larger $C$ generally means:
     \item $14\times 14$
 \end{enumerate}
 
-\item Which line defines a convolution mapping 3 input channels to 8 output channels with kernel size 3 and padding 1?
+\item Which line defines a convolution mapping of images with 3 input channels to 8 output channels with kernel size 3 and padding 1?
 
 \begin{enumerate}[label=\Alph*.]
     \item \texttt{nn.Conv2d(3, 8, kernel\_size=3, padding=1)} \cmark
@@ -493,6 +493,161 @@ a larger $C$ generally means:
     \item Standard autoencoders require class labels
 \end{enumerate}
 
+
+\item In softmax multiclass classification, let $z \in \mathbb{R}^C$ be the logits, $\hat y_i = \frac{e^{z_i}}{\sum_j e^{z_j}}$, and let the target $y$ be one-hot. Which statement is correct?
+
+\begin{enumerate}[label=\Alph*.]
+    \item Adding a constant to every coordinate of $z$ changes the loss but not the predicted class
+    \item Adding a constant to every coordinate of $z$ leaves both the softmax probabilities and cross-entropy loss unchanged \cmark
+    \item Multiplying every coordinate of $z$ by 2 leaves the softmax probabilities unchanged
+    \item The cross-entropy loss depends only on the largest logit
 \end{enumerate}
 
+\item Consider PCA on centered data matrix $X \in \mathbb{R}^{n\times d}$. Suppose $v_1$ is the first principal direction, constrained by $\|v_1\|=1$. Which optimization problem does $v_1$ solve?
+
+\begin{enumerate}[label=\Alph*.]
+    \item \(\displaystyle \min_{\|v\|=1} \|X - Xvv^T\|_F^2\) and equivalently \(\max_{\|v\|=1} v^T X^T X v\) \cmark
+    \item \(\displaystyle \max_{\|v\|=1} \|Xv\|_1\)
+    \item \(\displaystyle \min_{\|v\|=1} v^T X^T X v\)
+    \item \(\displaystyle \max_{\|v\|=1} \det(X^T X)\)
+\end{enumerate}
+
+\item In a linear SVM with hinge loss and $L_2$ regularization,
+\[
+J(w)=\frac{\lambda}{2}\|w\|^2 + \sum_{i=1}^n \max(0,1-y_i w^T x_i),
+\]
+where $y_i \in \{-1,+1\}$. Which is a valid subgradient of $J(w)$?
+
+\begin{enumerate}[label=\Alph*.]
+    \item \(\displaystyle \lambda w - \sum_{i:\, y_i w^T x_i < 1} y_i x_i\) \cmark
+    \item \(\displaystyle \lambda w + \sum_{i=1}^n y_i x_i\)
+    \item \(\displaystyle \sum_{i:\, y_i w^T x_i > 1} y_i x_i\)
+    \item \(\displaystyle -\lambda w - \sum_{i:\, y_i w^T x_i < 1} y_i x_i\)
+\end{enumerate}
+
+\item In scaled dot-product attention, let $Q \in \mathbb{R}^{m \times d_k}$, $K \in \mathbb{R}^{n \times d_k}$, and $V \in \mathbb{R}^{n \times d_v}$. The attention output is
+\[
+\mathrm{Attention}(Q,K,V)=\mathrm{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V.
+\]
+What is the shape of the output?
+
+\begin{enumerate}[label=\Alph*.]
+    \item $m \times n$
+    \item $n \times d_v$
+    \item $m \times d_v$ \cmark
+    \item $d_k \times d_v$
+\end{enumerate}
+
+
+\item Suppose a 2D convolution layer has input tensor shape \texttt{(batch\_size, 16, 31, 31)} in PyTorch format \texttt{(N,C,H,W)}. The layer is
+\texttt{nn.Conv2d(16, 32, kernel\_size=5, stride=2, padding=2)}.
+What is the output shape?
+
+\begin{enumerate}[label=\Alph*.]
+    \item \texttt{(batch\_size, 32, 16, 16)} \cmark
+    \item \texttt{(batch\_size, 32, 15, 15)}
+    \item \texttt{(batch\_size, 16, 16, 16)}
+    \item \texttt{(batch\_size, 32, 31, 31)}
+\end{enumerate}
+
+\item Consider a vanilla RNN
+\[
+h_t = \tanh(W_{hh} h_{t-1} + W_{xh} x_t + b).
+\]
+Which statement best explains why vanishing gradients can occur when backpropagating through many time steps?
+
+\begin{enumerate}[label=\Alph*.]
+    \item Because $\tanh$ is not differentiable at 0
+    \item Because repeated multiplication by Jacobians with singular values less than 1 can make gradients decay exponentially \cmark
+    \item Because the hidden state has fixed dimension
+    \item Because the input sequence is too short
+\end{enumerate}
+
+\item In an LSTM, which component most directly allows the cell state to preserve information over long time spans with relatively stable gradient flow?
+
+\begin{enumerate}[label=\Alph*.]
+    \item The output gate alone
+    \item The additive cell-state update controlled by forget and input gates \cmark
+    \item The softmax layer on top of the network
+    \item The hidden state dimension being larger than the input dimension
+\end{enumerate}
+
+\item In multi-head self-attention, why is it useful to project the input into multiple different query/key/value subspaces instead of using a single attention head?
+
+\begin{enumerate}[label=\Alph*.]
+    \item It guarantees fewer parameters than single-head attention
+    \item It allows the model to attend to different types of relationships or positions simultaneously \cmark
+    \item It removes the need for positional encodings
+    \item It makes the attention computation linear in sequence length
+\end{enumerate}
+
+\item Suppose self-attention is applied to a sequence of length $n$ with hidden dimension $d$. Ignoring constant factors and assuming $d$ is fixed across layers, the dominant time complexity of forming the attention matrix in standard self-attention is:
+
+\begin{enumerate}[label=\Alph*.]
+    \item $O(n)$
+    \item $O(n \log n)$
+    \item $O(n d)$
+    \item $O(n^2 d)$ \cmark
+\end{enumerate}
+
+\item Let
+\[
+L(w)=\frac{1}{2}(w^T x-y)^2
+\]
+for one training example, where $w,x\in\mathbb{R}^d$. What is the Hessian $\nabla^2_w L(w)$?
+
+\begin{enumerate}[label=\Alph*.]
+    \item $xx^T$ \cmark
+    \item $(w^Tx-y)xx^T$
+    \item $2xx^T$
+    \item $(w^Tx-y)x$
+\end{enumerate}
+
+\item For binary logistic regression with data matrix $X\in\mathbb{R}^{n\times d}$, predictions $p_i=\sigma(w^T x_i)$, and negative log-likelihood
+\[
+L(w)=-\sum_{i=1}^n \left[y_i\log p_i+(1-y_i)\log(1-p_i)\right],
+\]
+which statement is true about $L(w)$?
+
+\begin{enumerate}[label=\Alph*.]
+    \item $L(w)$ is generally non-convex because of the sigmoid
+    \item $L(w)$ is convex because its Hessian can be written as $X^T D X$ with $D$ diagonal and nonnegative \cmark
+    \item $L(w)$ is concave when the data are linearly separable
+    \item $L(w)$ is convex only when $d=1$
+\end{enumerate}
+
+\item Let $X$ be a centered data matrix. In PCA, the total variance explained by the first $k$ principal components is:
+
+\begin{enumerate}[label=\Alph*.]
+    \item The sum of the first $k$ singular values divided by the largest singular value
+    \item The sum of the first $k$ eigenvalues of the covariance matrix divided by the sum of all eigenvalues \cmark
+    \item The product of the first $k$ eigenvalues divided by the trace
+    \item The trace of $X^T X$ divided by $k$
+\end{enumerate}
+
+\item In a variational autoencoder, the loss for one example is typically written as
+\[
+\mathcal{L}(x)= -\mathbb{E}_{q_\phi(z|x)}[\log p_\theta(x|z)] + \mathrm{KL}(q_\phi(z|x)\,\|\,p(z)).
+\]
+What is the main role of the KL term?
+
+\begin{enumerate}[label=\Alph*.]
+    \item To force the decoder to be linear
+    \item To encourage the approximate posterior to stay close to the prior \cmark
+    \item To maximize reconstruction error
+    \item To make latent variables deterministic
+\end{enumerate}
+
+\item In $k$-means clustering, suppose cluster assignments are fixed. What is the optimal update for each cluster center?
+
+\begin{enumerate}[label=\Alph*.]
+    \item The point in the cluster closest to the origin
+    \item The coordinate-wise median of the assigned points
+    \item The mean of the assigned points \cmark
+    \item The point in the cluster with largest norm
+\end{enumerate}
+
+
+
+\end{enumerate}
 \end{document}
