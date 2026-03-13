@@ -331,7 +331,7 @@ a larger $C$ generally means:
     \item $y=0$
 \end{enumerate}
 
-\item For $L(w)=\max(0,1-yw^Tx)$, which is a valid subgradient when $yw^Tx < 1$?
+\item For $L(w)=\max(0,1-yw^Tx)$, which is a valid subgradient (derivative) of the loss with respect to $w$ when $yw^Tx < 1$?
 
 \begin{enumerate}[label=\Alph*.]
     \item $0$
@@ -684,7 +684,7 @@ and the loss is
 \[
 L = \frac{1}{2}\|\hat y - y\|_2^2.
 \]
-Which expression is correct for the gradient of the loss with respect to $W_1$?
+Which expression is correct for the gradient of the loss with respect to $W_1$? ($\odot$ is elementwise product, $\mathbf{1}_{z_1>0}$ is an indicator function that is 1 if $z_1>0$ and 0 otherwise)
 
 \begin{enumerate}[label=\Alph*.]
     \item \(\displaystyle \frac{\partial L}{\partial W_1} = (\hat y - y)x^T\)
