@@ -1,0 +1,498 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb}
+\usepackage[T1]{fontenc}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{pifont}
+
+\newcommand{\cmark}{\ding{51}}
+
+\title{Machine Learning Final Exam: 50 Multiple-Choice Questions}
+\date{}
+\author{}
+
+\begin{document}
+\maketitle
+
+\section*{Instructions}
+Choose the best answer for each question.
+
+\begin{enumerate}[leftmargin=*]
+
+\item Suppose you run 1-nearest neighbor on a training set with no duplicate feature vectors and evaluate on the same training set. Which is true?
+
+\begin{enumerate}[label=\Alph*.]
+    \item Training error must be positive unless data are linearly separable
+    \item Training error is always zero \cmark
+    \item Training error depends on the number of classes
+    \item Training error is zero only if features are normalized
+\end{enumerate}
+
+
+\item As $K$ increases in KNN classification, what usually happens?
+
+\begin{enumerate}[label=\Alph*.]
+    \item The model is more likely to overfit the training data
+    \item The model is less likely to overfit, but may become more likely to underfit \cmark
+    \item The model always fits the training data perfectly
+    \item The model always becomes more accurate on test data
+\end{enumerate}
+
+
+
+\item Why is choosing $K$ using training accuracy alone usually a bad idea?
+
+\begin{enumerate}[label=\Alph*.]
+    \item Training accuracy cannot be computed for KNN
+    \item Training accuracy tends to favor small $K$, often $K=1$ \cmark
+    \item Training accuracy tends to favor large $K$
+    \item Cross-validation is only for regression
+\end{enumerate}
+
+\item In high dimensions, which phenomenon most directly harms nearest-neighbor methods?
+
+\begin{enumerate}[label=\Alph*.]
+    \item The dot product becomes undefined
+    \item Distances to nearest and farthest points become relatively similar \cmark
+    \item Labels become continuous
+    \item The number of classes must increase
+\end{enumerate}
+
+\item If every feature is multiplied by 1000, which classifier is most directly affected if no other preprocessing is done?
+
+\begin{enumerate}[label=\Alph*.]
+    \item Naive Bayes with Bernoulli features
+    \item KNN with Euclidean distance \cmark
+    \item PCA after centering and proper scaling
+    \item Decision trees
+\end{enumerate}
+
+\item Which expression is correct?
+
+\begin{enumerate}[label=\Alph*.]
+    \item $P(y|x)=\frac{P(y)P(x)}{P(x|y)}$
+    \item $P(y|x)=\frac{P(x|y)P(y)}{P(x)}$ \cmark
+    \item $P(y|x)=P(x|y)P(x)$
+    \item $P(y|x)=P(x|y)+P(y)$
+\end{enumerate}
+
+\item For classification, MAP prediction differs from maximum likelihood prediction because MAP includes:
+
+\begin{enumerate}[label=\Alph*.]
+    \item The evidence $P(x)$ only
+    \item The prior $P(y)$ \cmark
+    \item The covariance matrix only
+    \item The learning rate
+\end{enumerate}
+
+\item Which statement is correct?
+
+\begin{enumerate}[label=\Alph*.]
+    \item $P(\theta|D)$ is the likelihood
+    \item $P(D|\theta)$ is the posterior
+    \item $P(D|\theta)$ is the likelihood \cmark
+    \item $P(D)$ is the prior
+\end{enumerate}
+
+\item For binary features $x_j \in \{0,1\}$, the Bernoulli Naive Bayes class-conditional model typically writes
+\[
+P(x|y=c)=\prod_j p_{jc}^{x_j}(1-p_{jc})^{1-x_j}.
+\]
+What does $p_{jc}$ represent?
+
+\begin{enumerate}[label=\Alph*.]
+    \item The probability that class $c$ occurs
+    \item The probability feature $j$ equals 1 given class $c$ \cmark
+    \item The mean of feature $j$ over all data
+    \item The posterior probability $P(y=c|x_j)$
+\end{enumerate}
+
+\item Which assumption is made by Gaussian Naive Bayes?
+
+\begin{enumerate}[label=\Alph*.]
+    \item Each class shares the same full covariance matrix
+    \item Features are conditionally independent given the class, each modeled as Gaussian \cmark
+    \item The posterior is Gaussian in the class label
+    \item Data must be binary
+\end{enumerate}
+
+\item Let $x_1,\dots,x_n$ be i.i.d.\ from $\mathcal N(\mu,\sigma^2)$ with known $\sigma^2$. The MLE of $\mu$ is:
+
+\begin{enumerate}[label=\Alph*.]
+    \item $\sum_i x_i^2$
+    \item $\frac{1}{n}\sum_i x_i$ \cmark
+    \item $\frac{1}{n-1}\sum_i x_i$
+    \item $\sqrt{\frac{1}{n}\sum_i x_i^2}$
+\end{enumerate}
+
+\item The Bayes optimal classifier assigns $x$ to the class:
+
+\begin{enumerate}[label=\Alph*.]
+    \item With largest prior probability
+    \item With largest likelihood $P(x|y)$
+    \item With largest posterior $P(y|x)$ \cmark
+    \item With smallest entropy
+\end{enumerate}
+
+\item The standard empirical risk for linear regression with MSE over $n$ examples is:
+
+\begin{enumerate}[label=\Alph*.]
+    \item $\sum_{i=1}^n |w^T x_i-y_i|$
+    \item $\frac{1}{n}\sum_{i=1}^n (w^T x_i-y_i)^2$ \cmark
+    \item $\sum_{i=1}^n \log(1+e^{-y_i w^T x_i})$
+    \item $\sum_{i=1}^n \max(0,1-y_iw^Tx_i)$
+\end{enumerate}
+
+\item Let
+\[
+L(w)=\frac{1}{n}\|Xw-y\|^2.
+\]
+What is $\nabla_w L(w)$?
+
+\begin{enumerate}[label=\Alph*.]
+    \item $\frac{1}{n}X^T(Xw-y)$
+    \item $\frac{2}{n}X^T(Xw-y)$ \cmark
+    \item $2X(Xw-y)$
+    \item $Xw-y$
+\end{enumerate}
+
+\item Suppose $L(w)=\frac{1}{2}(wx-y)^2$, where $w,x,y$ are scalars. Starting at $w_0$, one gradient descent step with learning rate $\eta$ gives:
+
+\begin{enumerate}[label=\Alph*.]
+    \item $w_1 = w_0 - \eta(wx-y)$
+    \item $w_1 = w_0 - \eta(w_0x-y)x$ \cmark
+    \item $w_1 = w_0 + \eta(w_0x-y)x$
+    \item $w_1 = w_0 - \eta(w_0-y)$
+\end{enumerate}
+
+\item Which statement is correct?
+
+\begin{enumerate}[label=\Alph*.]
+    \item SGD uses one example per update; batch GD uses all examples; mini-batch uses a subset \cmark
+    \item SGD and mini-batch GD are identical
+    \item Batch GD is always faster per epoch than mini-batch GD on GPUs
+    \item Online GD means using all current examples seen so far in each step
+\end{enumerate}
+
+\item If gradient descent diverges during training of a smooth convex loss, the most likely explanation is:
+
+\begin{enumerate}[label=\Alph*.]
+    \item The learning rate is too small
+    \item The learning rate is too large \cmark
+    \item The dataset has too few examples
+    \item The model is linear
+\end{enumerate}
+
+\item In binary logistic regression, $\sigma(w^T x)$ is interpreted as:
+
+\begin{enumerate}[label=\Alph*.]
+    \item The log-odds of class 1
+    \item The probability of class 1 under the model \cmark
+    \item The margin
+    \item The hinge loss
+\end{enumerate}
+
+\item If $\sigma(z)=\frac{1}{1+e^{-z}}$, then $\sigma'(z)$ equals:
+
+\begin{enumerate}[label=\Alph*.]
+    \item $\sigma(z)$
+    \item $1-\sigma(z)$
+    \item $\sigma(z)(1-\sigma(z))$ \cmark
+    \item $e^{-z}$
+\end{enumerate}
+
+\item For one example with label $y\in\{0,1\}$ and prediction $\hat y\in(0,1)$, the logistic loss is:
+
+\begin{enumerate}[label=\Alph*.]
+    \item $(y-\hat y)^2$
+    \item $-y\log \hat y$
+    \item $-[y\log \hat y+(1-y)\log(1-\hat y)]$ \cmark
+    \item $\max(0,1-y\hat y)$
+\end{enumerate}
+
+\item For one example in logistic regression, with $\hat y=\sigma(w^T x)$, the gradient of the negative log-likelihood is:
+
+\begin{enumerate}[label=\Alph*.]
+    \item $(y-\hat y)x$
+    \item $(\hat y-y)x$ \cmark
+    \item $(1-\hat y)x$
+    \item $-yx$
+\end{enumerate}
+
+\item The decision boundary of binary logistic regression with threshold 0.5 is:
+
+\begin{enumerate}[label=\Alph*.]
+    \item Quadratic in the features
+    \item Linear in the features \cmark
+    \item Always nonlinear because sigmoid is nonlinear
+    \item Undefined unless features are normalized
+\end{enumerate}
+
+\item For logits $z\in\mathbb R^C$, softmax probabilities satisfy:
+
+\begin{enumerate}[label=\Alph*.]
+    \item Each output is between $-1$ and 1
+    \item Outputs sum to 1 \cmark
+    \item Outputs are binary
+    \item Outputs are independent of additive shifts to logits only if $C=2$
+\end{enumerate}
+
+\item Which transformation leaves softmax probabilities unchanged?
+
+\begin{enumerate}[label=\Alph*.]
+    \item Multiplying all logits by 2
+    \item Adding the same constant to all logits \cmark
+    \item Squaring all logits
+    \item Replacing logits with their signs
+\end{enumerate}
+
+\item If $y$ is one-hot and $\hat y$ is the softmax output, then
+\[
+-\sum_i y_i \log \hat y_i
+\]
+equals:
+
+\begin{enumerate}[label=\Alph*.]
+    \item The negative log of the predicted probability of the true class \cmark
+    \item The sum of all logits
+    \item The mean squared error
+    \item The entropy of the input features
+\end{enumerate}
+
+\item For softmax with cross-entropy loss for one example, the gradient with respect to the logits is:
+
+\begin{enumerate}[label=\Alph*.]
+    \item $\hat y-y$ \cmark
+    \item $y-\hat y$
+    \item $(\hat y-y)^2$
+    \item $\hat y(1-\hat y)$
+\end{enumerate}
+
+\item Adding $\lambda \|w\|_2^2$ to the loss tends to:
+
+\begin{enumerate}[label=\Alph*.]
+    \item Encourage many weights to be exactly zero more strongly than L1
+    \item Penalize large weights smoothly \cmark
+    \item Make the optimization non-differentiable everywhere
+    \item Leave the optimum unchanged
+\end{enumerate}
+
+\item A key reason L1 regularization may be preferred over L2 is that L1 often:
+
+\begin{enumerate}[label=\Alph*.]
+    \item Gives closed-form solutions for deep networks
+    \item Encourages sparse solutions \cmark
+    \item Avoids overfitting in every setting
+    \item Is equivalent to dropout
+\end{enumerate}
+
+\item For objective
+\[
+J(w)=\frac{1}{n}\|Xw-y\|^2 + \lambda \|w\|_2^2,
+\]
+the gradient is:
+
+\begin{enumerate}[label=\Alph*.]
+    \item $\frac{2}{n}X^T(Xw-y)+2\lambda w$ \cmark
+    \item $\frac{2}{n}X(Xw-y)+\lambda$
+    \item $X^T(Xw-y)+\lambda |w|$
+    \item $\frac{1}{n}(Xw-y)^2+\lambda w$
+\end{enumerate}
+
+\item In a linear hard-margin SVM, the geometric margin is increased by:
+
+\begin{enumerate}[label=\Alph*.]
+    \item Increasing $\|w\|$
+    \item Decreasing $\|w\|$ while satisfying separation constraints \cmark
+    \item Making all slack variables large
+    \item Using sigmoid instead of hinge loss
+\end{enumerate}
+
+\item In the soft-margin SVM objective
+\[
+\frac{1}{2}\|w\|^2 + C\sum_i \xi_i,
+\]
+a larger $C$ generally means:
+
+\begin{enumerate}[label=\Alph*.]
+    \item Stronger penalty for violations of the margin constraints \cmark
+    \item Weaker penalty for violations
+    \item No regularization
+    \item Larger learning rate
+\end{enumerate}
+
+\item For hinge loss $L=\max(0,1-yf(x))$, the loss is zero when:
+
+\begin{enumerate}[label=\Alph*.]
+    \item $yf(x)\le 0$
+    \item $yf(x)\ge 1$ \cmark
+    \item $f(x)=0$
+    \item $y=0$
+\end{enumerate}
+
+\item For $L(w)=\max(0,1-yw^Tx)$, which is a valid subgradient when $yw^Tx < 1$?
+
+\begin{enumerate}[label=\Alph*.]
+    \item $0$
+    \item $yx$
+    \item $-yx$ \cmark
+    \item $-x$
+\end{enumerate}
+
+\item Which statement is correct?
+
+\begin{enumerate}[label=\Alph*.]
+    \item Hinge loss is smooth everywhere, logistic loss is not
+    \item Logistic loss gives zero penalty once margin exceeds 1
+    \item Hinge loss is piecewise linear and not differentiable at the margin \cmark
+    \item Both losses are identical up to scaling
+\end{enumerate}
+
+\item Why does adding nonlinear activation functions between layers matter?
+
+\begin{enumerate}[label=\Alph*.]
+    \item Without them, a multi-layer network collapses to an equivalent linear map \cmark
+    \item Without them, gradient descent cannot run
+    \item Without them, backpropagation is impossible
+    \item Without them, the model automatically becomes recurrent
+\end{enumerate}
+
+\item Backpropagation is best described as:
+
+\begin{enumerate}[label=\Alph*.]
+    \item Forward computation of activations only
+    \item Efficient application of the chain rule from output layer to earlier layers \cmark
+    \item Random search over parameters
+    \item A method that only works for sigmoid networks
+\end{enumerate}
+
+\item Suppose \texttt{x} has shape \texttt{(batch\_size, 20)}, first layer is \texttt{nn.Linear(20, 50)}, second layer is \texttt{nn.Linear(50, 3)}. What is the output shape?
+
+\begin{enumerate}[label=\Alph*.]
+    \item \texttt{(20, 3)}
+    \item \texttt{(batch\_size, 50)}
+    \item \texttt{(batch\_size, 3)} \cmark
+    \item \texttt{(3, batch\_size)}
+\end{enumerate}
+
+\item Which is true about ReLU $f(z)=\max(0,z)$?
+
+\begin{enumerate}[label=\Alph*.]
+    \item It saturates for large positive $z$
+    \item It often helps mitigate vanishing gradients compared with sigmoid \cmark
+    \item Its output is always in $(0,1)$
+    \item It is differentiable everywhere
+\end{enumerate}
+
+\item For a 2D convolution with input size $32\times 32$, kernel size $5$, stride $2$, padding $1$, the output spatial size is:
+
+\begin{enumerate}[label=\Alph*.]
+    \item $15\times 15$ \cmark
+    \item $16\times 16$
+    \item $17\times 17$
+    \item $14\times 14$
+\end{enumerate}
+
+\item Which line defines a convolution mapping 3 input channels to 8 output channels with kernel size 3 and padding 1?
+
+\begin{enumerate}[label=\Alph*.]
+    \item \texttt{nn.Conv2d(3, 8, kernel\_size=3, padding=1)} \cmark
+    \item \texttt{nn.Conv2d(8, 3, kernel\_size=3, padding=1)}
+    \item \texttt{nn.Linear(3, 8, 3)}
+    \item \texttt{nn.Conv1d(3, 8, kernel\_size=3, padding=1)}
+\end{enumerate}
+
+\item In a standard convolution layer, the number of output channels is determined by:
+
+\begin{enumerate}[label=\Alph*.]
+    \item The stride
+    \item The padding
+    \item The number of filters \cmark
+    \item The input width
+\end{enumerate}
+
+\item Why do vanilla RNNs struggle with long-range dependencies?
+
+\begin{enumerate}[label=\Alph*.]
+    \item They cannot process variable-length sequences
+    \item Repeated multiplication through time can cause gradients to shrink or explode \cmark
+    \item They do not use matrix multiplication
+    \item They require one-hot inputs only
+\end{enumerate}
+
+\item LSTM cells improve vanilla RNNs primarily by:
+
+\begin{enumerate}[label=\Alph*.]
+    \item Replacing matrix multiplication with convolution
+    \item Using gating mechanisms to better preserve or forget information over time \cmark
+    \item Eliminating recurrence entirely
+    \item Forcing hidden states to be binary
+\end{enumerate}
+
+\item A sequence-to-sequence model is most naturally suited for:
+
+\begin{enumerate}[label=\Alph*.]
+    \item Binary image classification only
+    \item Mapping an input sequence to an output sequence, possibly of different length \cmark
+    \item Clustering fixed-dimensional points only
+    \item PCA on tabular data
+\end{enumerate}
+
+\item For sentiment analysis on sentences, which model type is especially natural because it handles variable-length token sequences?
+
+\begin{enumerate}[label=\Alph*.]
+    \item K-means
+    \item RNN/LSTM or Transformer \cmark
+    \item Linear regression
+    \item PCA
+\end{enumerate}
+
+\item In scaled dot-product attention, the attention weights are computed as:
+
+\begin{enumerate}[label=\Alph*.]
+    \item $\text{softmax}(Q+K)V$
+    \item $\text{softmax}(QK^T/\sqrt{d_k})V$ \cmark
+    \item $Q(K^TV)$
+    \item $\text{softmax}(QV^T/\sqrt{d_k})K$
+\end{enumerate}
+
+\item In transformer attention, dividing by $\sqrt{d_k}$ helps because otherwise for large $d_k$:
+
+\begin{enumerate}[label=\Alph*.]
+    \item Dot products can become large, making softmax too peaky and gradients unstable \cmark
+    \item The values matrix $V$ becomes singular
+    \item The sequence length changes
+    \item The model becomes recurrent
+\end{enumerate}
+
+\item K-means clustering aims to minimize:
+
+\begin{enumerate}[label=\Alph*.]
+    \item The sum of distances between all pairs of points
+    \item The within-cluster sum of squared distances to cluster centroids \cmark
+    \item The determinant of the covariance matrix
+    \item The classification error rate
+\end{enumerate}
+
+\item Which statement best distinguishes Gaussian mixture models from K-means?
+
+\begin{enumerate}[label=\Alph*.]
+    \item GMM gives only hard assignments; K-means gives soft assignments
+    \item GMM models clusters probabilistically and can provide soft assignments \cmark
+    \item K-means models full covariance Gaussians
+    \item They are identical if initialized the same way
+\end{enumerate}
+
+\item Which statement is correct?
+
+\begin{enumerate}[label=\Alph*.]
+    \item PCA always gives nonlinear dimension reduction
+    \item A denoising autoencoder is trained to reconstruct the clean input from a corrupted version \cmark
+    \item A VAE is trained only with reconstruction loss and no regularization term
+    \item Standard autoencoders require class labels
+\end{enumerate}
+
+\end{enumerate}
+
+\end{document}
